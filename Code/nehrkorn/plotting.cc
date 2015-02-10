@@ -13,7 +13,7 @@ bool testPlotting = true;
 bool dym50 = true;
 bool signaltop = false;
 bool emb = false;
-bool generatorcomparison = true;
+bool generatorcomparison = false;
 TString prepend = "ztoemu_default_";
 TString signalName = "emu_DY";
 
@@ -25,7 +25,7 @@ void plotting(){
 
 	// enter filename here
 	TString filename;
-	if(emb) filename = "/user/nehrkorn/analysis_emb_scaled.root";//dym50_jeteta52.root";
+	if(emb) filename = "/user/nehrkorn/analysis_emb_scaled.root";
 	else if (generatorcomparison) filename = "/user/nehrkorn/analysis_gencomparison.root";
 	else filename = "/user/nehrkorn/analysis_dym50_jeteta52.root";
 	TFile* infile = new TFile(filename);
@@ -265,16 +265,47 @@ void plotting(){
 		}
 	}
 
+	double sigscale = lumi*xsignal/nsignal;
+	TH1D* datapt = getHisto("ptbal_optimizationData",1,1,infile);
+	TH1D* sigpt = getHisto("ptbal_optimizationMC_emu_DY",1,1,infile);
+	std::vector<TH1D*> mcpt = getHistos("ptbal_optimization",names,mcscale,colors,infile,syst);
+	std::cout << "====================" << std::endl;
+	for(unsigned i=1;i<=datapt->GetNbinsX();i++){
+		std::cout << "Bin " << i << ": " << datapt->GetBinContent(i) << "(data), ";
+		double ptmc(0);
+		for(unsigned j=0;j<mcpt.size()-1;j++){
+			ptmc += mcpt.at(j)->GetBinContent(i);
+		}
+		std::cout << ptmc << "(MC), " << sigpt->GetBinContent(i) << "(signal)" << std::endl;
+	}
+	TH1D* sigmet = getHisto("met_uncertaintiesMC_emu_DY",1,1,infile);
+	std::vector<TH1D*> mcmet = getHistos("met_uncertainties",names,mcscale,colors,infile,syst);
+	std::cout << "====================" << std::endl;
+	for(unsigned i=1;i<=sigmet->GetNbinsX();i++){
+		std::cout << "Bin " << i << ": ";
+		double metmc(0);
+		for(unsigned j=0;j<mcmet.size()-1;j++){
+			metmc += mcmet.at(j)->GetBinContent(i);
+		}
+		std::cout << metmc << "(MC), " << sigmet->GetBinContent(i) << "(signal)" << std::endl;
+	}
+
 	if(generatorcomparison){
-		const int ncomp = 12;
-		TString cplot[ncomp] = {"zpt","zeta","zmass","znjets","zjetpt","zmet","zmtlead","zmttrail","znjets_rec","zjetpt_rec","zleadpt","ztrailpt"};
-		TString num[ncomp] = {"MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY"};
-		//TString denom[ncomp] = {"MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY"};
-		TString denom[ncomp] = {"MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY"};
+		const int ncomp = 16;
+		TString cplot[ncomp] = {"zpt","zeta","zmass","znjets","zjetpt","zmet","zmtlead","zmttrail","znjets_rec","zjetpt_rec","zleadpt","ztrailpt","znjets_thresh","znjets_thresh_rec","zjetpt_thresh","zjetpt_thresh_rec"};
+		TString num[ncomp] = {"MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY","MC_emu_DY"};
+		TString denom1[ncomp] = {"MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY","MC_ee_DY"};
+		TString denom2[ncomp] = {"MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY","MC_mumu_DY"};
+		TString denom3[ncomp] = {"MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY"};
+		TString denom4[ncomp] = {"MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY","MC_DY"};
 		TString ctitle[ncomp] = {};
-		TString cunits[ncomp] = {"GeV","","GeV","","GeV","GeV","GeV","GeV","","GeV","GeV","GeV"};
+		TString cunits[ncomp] = {"GeV","","GeV","","GeV","GeV","GeV","GeV","","GeV","GeV","GeV","GeV","GeV","GeV","GeV"};
 		for(unsigned i=0;i<ncomp;i++){
-			DrawComparison(cplot[i]+num[i],cplot[i]+denom[i],1.,1.,0.,0.,infile,ctitle[i],cunits[i]);
+			//DrawComparison(cplot[i]+num[i],cplot[i]+denom1[i],1.,1.,0.,0.,infile,ctitle[i],cunits[i]);
+			DrawComparison(cplot[i]+num[i],cplot[i]+denom2[i],1.,1.,0.,0.,infile,ctitle[i],cunits[i]);
+			//DrawComparison(cplot[i]+num[i],cplot[i]+denom3[i],1.,1.,0.,0.,infile,ctitle[i],cunits[i]);
+			//DrawComparison(cplot[i]+num[i],cplot[i]+denom4[i],1.,1.,0.,0.,infile,ctitle[i],cunits[i]);
+			//DrawComparison(cplot[i]+num[i],cplot[i]+denom1[i],cplot[i]+denom2[i],1.,1.,1.,0.,0.,0.,infile,ctitle[i],cunits[i]);
 		}
 	}
 
@@ -417,6 +448,16 @@ void SetExtraText(TString extraText_){
 void DrawComparison(TString a, TString b, double a_scale, double b_scale, double a_syst, double b_syst, TFile* file, TString title, TString unit){
 	TH1D* signalhist = getHisto(a,a_scale,0,file,a_syst);
 	TH1D* backgroundhist = getHisto(b,b_scale,2345,file,b_syst);
+	signalhist->Scale(1./signalhist->Integral());
+	backgroundhist->Scale(1./backgroundhist->Integral());
+	TH1D* sb_ratio = getDataMC(signalhist,backgroundhist);
+	drawPlot(signalhist,backgroundhist,sb_ratio,"Custom MC","Official MC",title,unit);
+}
+
+void DrawComparison(TString a, TString b, TString c, double a_scale, double b_scale, double c_scale, double a_syst, double b_syst, double c_syst, TFile* file, TString title, TString unit){
+	TH1D* signalhist = getHisto(a,a_scale,0,file,a_syst);
+	TH1D* backgroundhist = getHisto(b,b_scale,2345,file,b_syst);
+	backgroundhist->Add(getHisto(c,c_scale,2345,file,c_syst));
 	signalhist->Scale(1./signalhist->Integral());
 	backgroundhist->Scale(1./backgroundhist->Integral());
 	TH1D* sb_ratio = getDataMC(signalhist,backgroundhist);

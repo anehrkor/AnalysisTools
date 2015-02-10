@@ -646,6 +646,8 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    // Type1      = T0 + T1 + Txy (recommendation by JetMET POG and Christian Veelken)
    // Type1Type2 = T0 + T1 + Txy + calibration for unclustered energy (better MET response, worse MET resolution)
    //
+   double             MET_Type1Corr_et(){ return Ntp->MET_Type1Corr_et; }
+   double             MET_Type1Corr_phi(){ return Ntp->MET_Type1Corr_phi; }
    double             MET_Type1CorrElectronUp_et(){ return Ntp->MET_Type1CorrElectronUp_et; }
    double             MET_Type1CorrElectronDown_et(){ return Ntp->MET_Type1CorrElectronDown_et; }
    double             MET_Type1CorrMuonUp_et(){ return Ntp->MET_Type1CorrMuonUp_et; }
@@ -658,6 +660,8 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    double             MET_Type1CorrJetEnDown_et(){ return Ntp->MET_Type1CorrJetEnDown_et; }
    double             MET_Type1CorrUnClusteredUp_et(){ return Ntp->MET_Type1CorrUnclusteredUp_et; }
    double             MET_Type1CorrUnClusteredDown_et(){ return Ntp->MET_Type1CorrUnclusteredDown_et; }
+   double             MET_Type1p2Corr_et(){ return Ntp->MET_Type1p2Corr_et; }
+   double             MET_Type1p2Corr_phi(){ return Ntp->MET_Type1p2Corr_phi; }
    double             MET_Type1p2CorrElectronUp_et(){ return Ntp->MET_Type1p2CorrElectronUp_et; }
    double             MET_Type1p2CorrElectronDown_et(){ return Ntp->MET_Type1p2CorrElectronDown_et; }
    double             MET_Type1p2CorrMuonUp_et(){ return Ntp->MET_Type1p2CorrMuonUp_et; }

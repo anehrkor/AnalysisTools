@@ -1084,11 +1084,13 @@ void Ntuple_Controller::printMCDecayChain(unsigned int par, unsigned int level, 
 	for(unsigned int l = 0; l < level; l++) out << "    ";
 	out << MCParticleToString(par, printStatus, printPt, printEtaPhi);
 	if (!printQCD && MCParticle_pdgid(par) == 92) {out << "    QCD stuff truncated ...\n"; std::cout << out.str(); return;}
+	if (!printQCD && level >= 10) {out << "    Cutting tree at level 10 ...\n"; std::cout << out.str(); return;}
 	out << "\n";
 	std::cout << out.str();
 	for (unsigned int i_dau = 0; i_dau < MCParticle_childidx(par).size(); i_dau++){
-		if (MCParticle_childidx(par).at(i_dau) != (int)par) // skip cases where particles are daughters of themselves
-			printMCDecayChain(MCParticle_childidx(par).at(i_dau), level+1, printStatus, printPt, printEtaPhi, printQCD);
+		if (MCParticle_childidx(par).at(i_dau) == (int)par) continue; // skip cases where particles are daughters of themselves
+		if (MCParticle_childidx(par).at(i_dau) == MCParticle_midx(par)) continue; // skip cases where daughter of particle is mother of particle
+		printMCDecayChain(MCParticle_childidx(par).at(i_dau), level+1, printStatus, printPt, printEtaPhi, printQCD);
 	}
 }
 

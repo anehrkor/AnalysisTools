@@ -98,6 +98,7 @@ class ZtoEMu : public Selection {
   
   std::vector<TH1D> met;
   std::vector<TH1D> met_uncorr;
+  std::vector<TH1D> met_patcorr;
   std::vector<TH1D> onejet;
   std::vector<TH1D> onejet_eta;
   std::vector<TH1D> NbJets;
@@ -118,7 +119,6 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> zpt;
   std::vector<TH1D> zeta;
   std::vector<TH1D> zmass;
-  std::vector<TH1D> znjets;
   std::vector<TH1D> zjetpt;
   std::vector<TH1D> zmet;
   std::vector<TH1D> zmtlead;
@@ -127,6 +127,9 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> zjetpt_rec;
   std::vector<TH1D> zleadpt;
   std::vector<TH1D> ztrailpt;
+  std::vector<TH1D> znjets_thresh_rec;
+  std::vector<TH1D> zjetpt_thresh;
+  std::vector<TH1D> zjetpt_thresh_rec;
 
   std::vector<TH1D> sip;
   std::vector<TH1D> sip_nm0;
@@ -143,6 +146,13 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> invmass_objectid_ss;
   std::vector<TH1D> invmass_ptbal_ss;
 
+  std::vector<TH1D> onejet_highmt;
+  std::vector<TH1D> ptbal_highmt;
+  std::vector<TH2D> ptbal_vs_mass;
+  std::vector<TH1D> ptbal_optimization;
+  std::vector<TH1D> met_uncertainties;
+  std::vector<TH1D> tt_ptweight;
+
   std::vector<TH1D> pdf_w0;
   std::vector<TH1D> pdf_w1;
 
@@ -155,7 +165,8 @@ class ZtoEMu : public Selection {
   bool doMuonIdUncertainty,doMuonScaleUncertainty,doMuonResUncertainty;
   bool doJECUncertainty, doJERUncertainty;
   bool doFakeRateUncertainty;
-  bool doMetUncertainty;
+  bool doMetEleUncertainty, doMetMuUncertainty, doMetTauUncertainty, doMetJECUncertainty, doMetJERUncertainty;
+  bool doPtUncertainty;
   bool upwardUncertainty,systValid;
   TString mucorr, ecorr, jetcorr;
 
@@ -169,6 +180,7 @@ class ZtoEMu : public Selection {
   double cosphi2d(double px1, double py1, double px2, double py2);
   double cosphi3d(TVector3 vec1, TVector3 vec2);
   int findBin(TGraphAsymmErrors* graph, double xval);
+  std::vector<unsigned int> findDaughters(unsigned int par);
   
   bool isFakeMuon(unsigned int idx);
   bool isFakeMuon(unsigned int idx, unsigned int vtx);
@@ -179,6 +191,7 @@ class ZtoEMu : public Selection {
   double ZPtReweight(double zpt);
   double ZPtRelUnc(double zpt);
   double ZPtMadgraphRelUnc(double zpt);
+  double TTbarPtReweight(double tpt, double antitpt, TString decay="all");
 
   // Fake rate stuff
 

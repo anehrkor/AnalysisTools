@@ -3,12 +3,14 @@
 #pragma link C++ class vector<vector<int> >;
 #pragma link C++ class vector<vector<float> >;
 #pragma link C++ class vector<vector<vector<float> > >;
+#pragma link C++ class vector<vector<vector<double> > >;
 #pragma link C++ class vector<vector<unsigned int> >;
 #pragma link C++ class vector<vector<vector<int> > >;
 #else
 template class std::vector<std::vector<int> >;
 template class std::vector<std::vector<float> >;
 template class std::vector<std::vector<std::vector<float> > >;
+template class std::vector<std::vector<std::vector<double> > >;
 template class std::vector<std::vector<unsigned int> >;
 template class std::vector<std::vector<std::vector< int> > >;
 #endif
