@@ -25,7 +25,7 @@ Tvariable_Base::Tvariable_Base(TString Name_, TString id_):
   ,trail_pt(20)
   ,lead_eta(2.1)
   ,trail_eta(2.4)
-  ,mmin(20)
+  ,mmin(50)
   ,jet_pt(18)
   ,jet_eta(5.2) // 2.5 in dileptonic top selection
   ,singlejet(40)
@@ -44,9 +44,7 @@ Tvariable_Base::Tvariable_Base(TString Name_, TString id_):
 {
     //verbose=true;
 
-	doWWObjects = true;
-	useMadgraphZ = true;
-	if(useMadgraphZ) mmin = 50;
+	isQCDEvent = false;
 
 	// Set category flag to standard value
 	categoryFlag = "noCategory";
@@ -306,9 +304,6 @@ void  Tvariable_Base::Configure(){
 	}
 	RSF = new ReferenceScaleFactors(runtype);
 	FRFile = new TFile(baseEff+"FakeRates_2012_19ifb_rereco.root");
-	ZptCorrFile = new TFile(baseEff+"zpt_correction_2012_roch.root");
-
-	ZptCorrection = (TH1D*)(ZptCorrFile->Get("zptratio"));
 
 	ElectronFakeRate35 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_35"));
 	ElectronFakeRate20 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_20"));
@@ -370,6 +365,7 @@ void  Tvariable_Base::Configure(){
 
   met_corr=HConfig.GetTH1D(Name+"_met_corr","met_corr",30,0.,150.,"MET (GeV)");
   met_uncorr=HConfig.GetTH1D(Name+"_met_uncorr","met_uncorr",30,0.,150.,"uncorrected MET (GeV)");
+  met_patcorr=HConfig.GetTH1D(Name+"_met_patcorr","met_patcorr",30,0.,150.,"pat corrected MET (GeV)");
   onejet=HConfig.GetTH1D(Name+"_onejet","onejet",40,0.,200.,"p_{T}^{jet} (GeV)");
   onejet_eta=HConfig.GetTH1D(Name+"_onejet_eta","onejet_eta",40,-5.,5.,"#eta_{jet}");
   NbJets=HConfig.GetTH1D(Name+"_NbJets","NbJets",20,0,20,"number of b jets");
@@ -465,6 +461,7 @@ void  Tvariable_Base::Store_ExtraDist(){
 
  Extradist1d.push_back(&met_corr);
  Extradist1d.push_back(&met_uncorr);
+ Extradist1d.push_back(&met_patcorr);
  Extradist1d.push_back(&onejet);
  Extradist1d.push_back(&onejet_eta);
  Extradist1d.push_back(&NbJets);
@@ -555,8 +552,7 @@ void  Tvariable_Base::doEvent(){
 				  && Ntp->Muon_RelIso(i)<0.12
 				  ){
 			  GoodMuons.push_back(i);
-		  }else if(doWWObjects
-				  && isFakeMuon(i,vertex)
+		  }else if(isFakeMuon(i,vertex)
 				  && (Ntp->isData() || Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
 				  ){
 			  Fakemuons.push_back(i);
@@ -615,8 +611,7 @@ void  Tvariable_Base::doEvent(){
 				  && Ntp->Electron_RelIsoDep04(i)<0.15
 				  ){
 			  GoodElectrons.push_back(i);
-		  }else if(doWWObjects
-				  && isFakeElectron(i,vertex)
+		  }else if(isFakeElectron(i,vertex)
 				  && (Ntp->isData() || Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
 				  ){
 			  Fakeelectrons.push_back(i);
@@ -781,139 +776,147 @@ void  Tvariable_Base::doEvent(){
   fakeRate = 1.;
   bool fakemu1(false), fakemu2(false);
   bool fakee1(false), fakee2(false);
-  if(doWWObjects){
-	  if(categoryFlag == "ZtoMuMu" || categoryFlag == "ZtoEMu"){
-		  for(unsigned i=0;i<Fakemuons.size();i++){
-			  if(Fakemuons.at(i) == muidx1){
-				  fakemu1 = true;
-				  fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate15);
-				  if(doFakeRateUncertainty){
-					  if(upwardUncertainty) fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate30);
-					  else fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate5);
-				  }
-			  }else if(Fakemuons.at(i) == muidx2){
-				  fakemu2 = true;
-				  fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate15);
-				  if(doFakeRateUncertainty){
-					  if(upwardUncertainty) fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate30);
-					  else fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate5);
-				  }
+
+  if(categoryFlag == "ZtoMuMu" || categoryFlag == "ZtoEMu"){
+	  for(unsigned i=0;i<Fakemuons.size();i++){
+		  if(Fakemuons.at(i) == muidx1){
+			  fakemu1 = true;
+			  fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate15);
+			  if(doFakeRateUncertainty){
+				  if(upwardUncertainty) fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate30);
+				  else fakeRateMu1 = Fakerate(Ntp->Muon_p4(muidx1).Pt(),Ntp->Muon_p4(muidx1).Eta(),MuonFakeRate5);
 			  }
-			  if((fakemu1 && categoryFlag != "ZtoMuMu") || (fakemu1 && fakemu2)) break;
-		  }
-	  }
-	  if(categoryFlag == "ZtoEE" || categoryFlag == "ZtoEMu"){
-		  for(unsigned i=0;i<Fakeelectrons.size();i++){
-			  if(Fakeelectrons.at(i) == eidx1){
-				  fakee1 = true;
-				  fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate35);
-				  if(doFakeRateUncertainty){
-					  if(upwardUncertainty) fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate50);
-					  else fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate20);
-				  }
-			  }else if(Fakeelectrons.at(i) == eidx2){
-				  fakee2 = true;
-				  fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate35);
-				  if(doFakeRateUncertainty){
-					  if(upwardUncertainty) fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate50);
-					  else fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate20);
-				  }
-			  }
-			  if((fakee1 && categoryFlag != "ZtoEE") || (fakee1 && fakee2)) break;
-		  }
-	  }
-	  if(pass.at(charge)
-			  && (Ntp->isData() || Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
-			  ){
-		  if(fakemu1 || fakemu2 || fakee1 || fakee2) fakeRate = 0.;
-	  }
-	  if(!pass.at(charge)
-			  && Ntp->isData()
-			  ){
-		  if(categoryFlag == "ZtoEE"){
-			  if(fakee1 && !fakee2){
-				  fakeRate = fakeRateE1;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakee2 && !fakee1){
-				  fakeRate = fakeRateE2;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakee1 && fakee2){
-				  fakeRate = fakeRateE1 * fakeRateE2;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }
-		  }else if(categoryFlag == "ZtoMuMu"){
-			  if(fakemu1 && !fakemu2){
-				  fakeRate = fakeRateMu1;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakemu2 && !fakemu1){
-				  fakeRate = fakeRateMu2;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakemu1 && fakemu2){
-				  fakeRate = fakeRateMu1 * fakeRateMu2;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }
-		  }else if(categoryFlag == "ZtoEMu"){
-			  if(fakemu1 && !fakee1){
-				  fakeRate = fakeRateMu1;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakee1 && !fakemu1){
-				  fakeRate = fakeRateE1;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
-			  }else if(fakemu1 && fakee1){
-				  fakeRate = fakeRateMu1 * fakeRateE1;
-				  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
-				  pass.at(charge)=true;
+		  }else if(Fakemuons.at(i) == muidx2){
+			  fakemu2 = true;
+			  fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate15);
+			  if(doFakeRateUncertainty){
+				  if(upwardUncertainty) fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate30);
+				  else fakeRateMu2 = Fakerate(Ntp->Muon_p4(muidx2).Pt(),Ntp->Muon_p4(muidx2).Eta(),MuonFakeRate5);
 			  }
 		  }
+		  if((fakemu1 && categoryFlag != "ZtoMuMu") || (fakemu1 && fakemu2)) break;
 	  }
-	  if(!pass.at(charge)
-			  && (Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
-			  ){
-		  if(categoryFlag == "ZtoEE"){
-			  if(fakee1 && !fakee2){
-				  fakeRate = -fakeRateE1;
-				  pass.at(charge)=true;
-			  }else if(fakee2 && !fakee1){
-				  fakeRate = -fakeRateE2;
-				  pass.at(charge)=true;
-			  }else if(fakee1 && fakee2){
-				  fakeRate = -fakeRateE1 * fakeRateE2;
-				  pass.at(charge)=true;
-			  }
-		  }else if(categoryFlag == "ZtoMuMu"){
-			  if(fakemu1 && !fakemu2){
-				  fakeRate = -fakeRateMu1;
-				  pass.at(charge)=true;
-			  }else if(fakemu2 && !fakemu1){
-				  fakeRate = -fakeRateMu2;
-				  pass.at(charge)=true;
-			  }else if(fakemu1 && fakemu2){
-				  fakeRate = -fakeRateMu1 * fakeRateMu2;
-				  pass.at(charge)=true;
-			  }
-		  }else if(categoryFlag == "ZtoEMu"){
-			  if(fakemu1 && !fakee1){
-				  fakeRate = -fakeRateMu1;
-				  pass.at(charge)=true;
-			  }else if(fakee1 && !fakemu1){
-				  fakeRate = -fakeRateE1;
-				  pass.at(charge)=true;
-			  }else if(fakemu1 && fakee1){
-				  fakeRate = -fakeRateMu1 * fakeRateE1;
-				  pass.at(charge)=true;
-			  }
-		  }
-	  }
-	  if(fabs(fakeRate)>0 && fabs(fakeRate)<1) fakeRate*=0.83;
   }
+  if(categoryFlag == "ZtoEE" || categoryFlag == "ZtoEMu"){
+	  for(unsigned i=0;i<Fakeelectrons.size();i++){
+		  if(Fakeelectrons.at(i) == eidx1){
+			  fakee1 = true;
+			  fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate35);
+			  if(doFakeRateUncertainty){
+				  if(upwardUncertainty) fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate50);
+				  else fakeRateE1 = Fakerate(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1),ElectronFakeRate20);
+			  }
+		  }else if(Fakeelectrons.at(i) == eidx2){
+			  fakee2 = true;
+			  fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate35);
+			  if(doFakeRateUncertainty){
+				  if(upwardUncertainty) fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate50);
+				  else fakeRateE2 = Fakerate(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2),ElectronFakeRate20);
+			  }
+		  }
+		  if((fakee1 && categoryFlag != "ZtoEE") || (fakee1 && fakee2)) break;
+	  }
+  }
+  if(pass.at(charge)
+		  && (Ntp->isData() || Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
+		  ){
+	  if(fakemu1 || fakemu2 || fakee1 || fakee2) fakeRate = 0.;
+  }
+  if(!pass.at(charge)
+		  && Ntp->isData()
+		  ){
+	  if(categoryFlag == "ZtoEE"){
+		  if(fakee1 && !fakee2){
+			  fakeRate = fakeRateE1;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakee2 && !fakee1){
+			  fakeRate = fakeRateE2;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakee1 && fakee2){
+			  fakeRate = fakeRateE1 * fakeRateE2;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }
+	  }else if(categoryFlag == "ZtoMuMu"){
+		  if(fakemu1 && !fakemu2){
+			  fakeRate = fakeRateMu1;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakemu2 && !fakemu1){
+			  fakeRate = fakeRateMu2;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakemu1 && fakemu2){
+			  fakeRate = fakeRateMu1 * fakeRateMu2;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }
+	  }else if(categoryFlag == "ZtoEMu"){
+		  if(fakemu1 && !fakee1){
+			  fakeRate = fakeRateMu1;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakee1 && !fakemu1){
+			  fakeRate = fakeRateE1;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }else if(fakemu1 && fakee1){
+			  fakeRate = fakeRateMu1 * fakeRateE1;
+			  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
+			  isQCDEvent = true;
+			  pass.at(charge)=true;
+		  }
+	  }
+  }
+  if(!pass.at(charge)
+		  && (Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau || Ntp->GetMCID()==DataMCType::DY_ll || Ntp->GetMCID()==DataMCType::DY_emu_embedded)
+		  ){
+	  if(categoryFlag == "ZtoEE"){
+		  if(fakee1 && !fakee2){
+			  fakeRate = -fakeRateE1;
+			  pass.at(charge)=true;
+		  }else if(fakee2 && !fakee1){
+			  fakeRate = -fakeRateE2;
+			  pass.at(charge)=true;
+		  }else if(fakee1 && fakee2){
+			  fakeRate = -fakeRateE1 * fakeRateE2;
+			  pass.at(charge)=true;
+		  }
+	  }else if(categoryFlag == "ZtoMuMu"){
+		  if(fakemu1 && !fakemu2){
+			  fakeRate = -fakeRateMu1;
+			  pass.at(charge)=true;
+		  }else if(fakemu2 && !fakemu1){
+			  fakeRate = -fakeRateMu2;
+			  pass.at(charge)=true;
+		  }else if(fakemu1 && fakemu2){
+			  fakeRate = -fakeRateMu1 * fakeRateMu2;
+			  pass.at(charge)=true;
+		  }
+	  }else if(categoryFlag == "ZtoEMu"){
+		  if(fakemu1 && !fakee1){
+			  fakeRate = -fakeRateMu1;
+			  pass.at(charge)=true;
+		  }else if(fakee1 && !fakemu1){
+			  fakeRate = -fakeRateE1;
+			  pass.at(charge)=true;
+		  }else if(fakemu1 && fakee1){
+			  fakeRate = -fakeRateMu1 * fakeRateE1;
+			  pass.at(charge)=true;
+		  }
+	  }
+  }
+  if(fabs(fakeRate)>0 && fabs(fakeRate)<1) fakeRate*=0.83;
 
 
   ///////////////////////////////////////////////
@@ -1174,12 +1177,6 @@ void  Tvariable_Base::doEvent(){
     		}
     	}
     }
-    if(pass.at(NMu)
-    		&& pass.at(NE)
-    		&& !useMadgraphZ
-    		){
-    	//if(Ntp->GetMCID()==DataMCType::DY_ee || Ntp->GetMCID()==DataMCType::DY_mumu || Ntp->GetMCID()==DataMCType::DY_tautau)w*=PowhegReweight((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).Pt());
-    }
     if(verbose)std::cout << "void  Tvariable_Base::doEvent() k" << w << " " << wobs << std::endl;
   }
   else{w=1*fakeRate;wobs=1;}
@@ -1194,7 +1191,7 @@ void  Tvariable_Base::doEvent(){
   if(doPDFuncertainty){
 	  if(verbose) std::cout << "Calculating PDF weights" << std::endl;
 	  for(int member=0;member<nPDFmembers;++member){
-		  if(Ntp->isData() || Ntp->GetMCID()==DataMCType::QCD) break;
+		  if(Ntp->isData() || isQCDEvent) break;
 		  double pdfWeight = w*pdf->weight(Ntp->GenEventInfoProduct_id1(),Ntp->GenEventInfoProduct_id2(),Ntp->GenEventInfoProduct_x1(),Ntp->GenEventInfoProduct_x2(),Ntp->GenEventInfoProduct_scalePDF(),member);
 		  pdf_w0.at(t).AddBinContent(member+1,pdfWeight);
 		  if(status) pdf_w1.at(t).AddBinContent(member+1,pdfWeight);
@@ -1294,6 +1291,8 @@ void  Tvariable_Base::doEvent(){
 	  drleadtrail.at(t).Fill(leadlep.DeltaR(traillep),w);
 	  met_corr.at(t).Fill(Ntp->MET_CorrT0pcT1_et(),w);
 	  met_uncorr.at(t).Fill(Ntp->MET_Uncorr_et(),w);
+	  if(!Ntp->isData() && !isQCDEvent) met_patcorr.at(t).Fill(Ntp->MET_Type1Corr_et(),w);
+	  else met_patcorr.at(t).Fill(Ntp->MET_CorrT0pcT1Txy_et(),w);
 	  mvamet.at(t).Fill(Ntp->MET_CorrMVA_et(),w);
 	  deltaphi.at(t).Fill(dp,w);
 	  ptbal.at(t).Fill((leadlep+traillep).Pt(),w);
@@ -1472,12 +1471,6 @@ double Tvariable_Base::ZPtReweight(double zpt){
 		else if(zpt>=90. && zpt<95.) weight/=1.30456;
 		else if(zpt>=95. && zpt<100.) weight/=1.18801;
 	}
-	return weight;
-}
-
-double Tvariable_Base::PowhegReweight(double zpt){
-	double weight = 1.;
-	weight = ZptCorrection->GetBinContent(ZptCorrection->FindFixBin(zpt));
 	return weight;
 }
 

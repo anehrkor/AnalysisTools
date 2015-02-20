@@ -146,9 +146,27 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> invmass_objectid_ss;
   std::vector<TH1D> invmass_ptbal_ss;
 
+  std::vector<TH1D> invmass_highmt;
+  std::vector<TH1D> invmass_tt_njets_highmt;
+  std::vector<TH1D> invmass_ww_njets_highmt;
+  std::vector<TH1D> invmass_ww_jetpt_highmt;
+  std::vector<TH1D> invmass_ww_njets_jetpt_highmt;
   std::vector<TH1D> onejet_highmt;
+  std::vector<TH1D> onejet_jetpt_10_highmt;
+  std::vector<TH1D> onejet_njets_highmt;
+  std::vector<TH1D> onejet_njets_jetpt_10_highmt;
   std::vector<TH1D> ptbal_highmt;
+  std::vector<TH1D> ptbal_zoom_highmt;
+  std::vector<TH1D> ptbal_tt_njets_highmt;
+  std::vector<TH1D> ptbal_ww_njets_highmt;
+  std::vector<TH1D> ptbal_ww_jetpt_highmt;
+  std::vector<TH1D> ptbal_ww_jetpt_25_40_highmt;
+  std::vector<TH1D> ptbal_ww_njets_jetpt_highmt;
+  std::vector<TH1D> ptbal_ww_njets_jetpt_30_highmt;
+  std::vector<TH1D> ptbal_ww_njets_jetpt_10_highmt;
+  std::vector<TH1D> ptbal_ww_njets_jetpt_25_40_highmt;
   std::vector<TH2D> ptbal_vs_mass;
+  std::vector<TH2D> onejet_vs_mass;
   std::vector<TH1D> ptbal_optimization;
   std::vector<TH1D> met_uncertainties;
   std::vector<TH1D> tt_ptweight;
@@ -159,14 +177,15 @@ class ZtoEMu : public Selection {
   double mu_ptlow,mu_pthigh,mu_eta,e_ptlow,e_pthigh,e_eta,mmin,mmax,jet_pt,jet_eta,singlejet,mtmu,ptbalance,zmin,zmax;
   double csvl,csvm,csvt;
   double normunc_dy,normunc_tt,normunc_tw,normunc_diboson,normunc_qcd;
+  bool isQCDEvent;
   bool doPDFuncertainty;
   bool doTriggerUncertainty,doPileupUncertainty;
   bool doElectronIdUncertainty,doElectronScaleUncertainty,doElectronResUncertainty;
   bool doMuonIdUncertainty,doMuonScaleUncertainty,doMuonResUncertainty;
   bool doJECUncertainty, doJERUncertainty;
   bool doFakeRateUncertainty;
-  bool doMetEleUncertainty, doMetMuUncertainty, doMetTauUncertainty, doMetJECUncertainty, doMetJERUncertainty;
-  bool doPtUncertainty;
+  bool doMetEleUncertainty, doMetMuUncertainty, doMetJECUncertainty, doMetJERUncertainty;
+  bool doPtUncertainty, doTTScaleForJetVetoUncertainty;
   bool upwardUncertainty,systValid;
   TString mucorr, ecorr, jetcorr;
 
@@ -189,8 +208,10 @@ class ZtoEMu : public Selection {
   bool isFakeElectron(unsigned int idx, unsigned int vtx);
 
   double ZPtReweight(double zpt);
-  double ZPtRelUnc(double zpt);
+  double ZPtRelUnc(double zpt, TString uncType);
   double ZPtMadgraphRelUnc(double zpt);
+  double ZPtTotalRelUnc(double zpt);
+  double ZPtSystRelUnc(double zpt);
   double TTbarPtReweight(double tpt, double antitpt, TString decay="all");
 
   // Fake rate stuff

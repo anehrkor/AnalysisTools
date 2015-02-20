@@ -20,14 +20,23 @@ TString signalName = "emu_DY";
 void plotting(){
 	SetStyle();
 	//SetExtraText("Simulation"); // for simulation comparison plots
+	//SetExtraText("Private Work"); // for dpg-style conference plots
 	
-	bool verbose = true;
+	bool verbose = false;
 
 	// enter filename here
 	TString filename;
 	if(emb) filename = "/user/nehrkorn/analysis_emb_scaled.root";
 	else if (generatorcomparison) filename = "/user/nehrkorn/analysis_gencomparison.root";
-	else filename = "/user/nehrkorn/analysis_dym50_jeteta52.root";
+	else filename = "/user/nehrkorn/analysis_standard.root";
+	//filename = "/user/nehrkorn/metUncStudy/meteleup.root";
+	//filename = "/user/nehrkorn/metUncStudy/meteledown.root";
+	//filename = "/user/nehrkorn/metUncStudy/metmuup.root";
+	//filename = "/user/nehrkorn/metUncStudy/metmudown.root";
+	//filename = "/user/nehrkorn/metUncStudy/metjecup.root";
+	//filename = "/user/nehrkorn/metUncStudy/metjecdown.root";
+	//filename = "/user/nehrkorn/metUncStudy/metjerup.root";
+	//filename = "/user/nehrkorn/metUncStudy/metjerdown.root";
 	TFile* infile = new TFile(filename);
 	TFile* upfile = new TFile("/user/nehrkorn/jerjecup.root");
 	TFile* downfile = new TFile("/user/nehrkorn/jerjecdown.root");
@@ -252,9 +261,9 @@ void plotting(){
 		TH1D* datahist = getHisto(plot+"Data",1,1,infile);
 		drawPlot(datahist,getHistos(plot,names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",unit);
 	}else{
-		const int nplots = 18;
-		TString plots[nplots] = {"PtMu","etaMu","PtE","etaE","onejet","met","mtMu","ptbal","invmass_ptbalance_m","NPV","invmass_vetos_m","invmass_jetveto_m","zmass_zoom","NJetsTight","Cut_08_Nminus1_oneJet_","sip","sip_nm0","ptbal_zoom"};
-		TString units[nplots] = {"GeV","","GeV","","GeV","GeV","GeV","GeV","GeV","","GeV","GeV","GeV","","GeV","","","GeV"};
+		const int nplots = 15;
+		TString plots[nplots] = {"PtMu","etaMu","PtE","etaE","onejet","met","mtMu","ptbal","invmass_ptbalance_m","NPV","invmass_vetos_m","invmass_jetveto_m","zmass_zoom","NJetsTight","ptbal_zoom"};
+		TString units[nplots] = {"GeV","","GeV","","GeV","GeV","GeV","GeV","GeV","","GeV","GeV","GeV","","GeV"};
 		std::vector<TH1D*> datahists;
 		for(unsigned i=0;i<nplots;i++){
 			datahists.push_back(getHisto(plots[i]+"Data",1,1,infile));
@@ -263,6 +272,17 @@ void plotting(){
 			std::cout << "Plot: " << plots[i] << std::endl;
 			drawPlot(datahists.at(i),getHistos(plots[i],names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",units[i]);
 		}
+	}
+	/*const int nplots = 9;
+	TString plots[nplots] = {"ptbal_zoom_highmt","ptbal_tt_njets_highmt","ptbal_ww_njets_highmt","ptbal_ww_jetpt_highmt","ptbal_ww_njets_jetpt_highmt","onejet_highmt","onejet_njets_highmt","onejet_njets_jetpt_10_highmt","ptbal_zoom"};
+	TString units[nplots] = {"GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV"};
+	std::vector<TH1D*> datahists;
+	for(unsigned i=0;i<nplots;i++){
+		datahists.push_back(getHisto(plots[i]+"Data",1,1,infile));
+	}
+	for(unsigned i=0;i<nplots;i++){
+		std::cout << "Plot: " << plots[i] << std::endl;
+		drawPlot(datahists.at(i),getHistos(plots[i],names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",units[i]);
 	}
 
 	double sigscale = lumi*xsignal/nsignal;
@@ -288,7 +308,7 @@ void plotting(){
 			metmc += mcmet.at(j)->GetBinContent(i);
 		}
 		std::cout << metmc << "(MC), " << sigmet->GetBinContent(i) << "(signal)" << std::endl;
-	}
+	}*/
 
 	if(generatorcomparison){
 		const int ncomp = 16;

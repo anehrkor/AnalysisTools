@@ -89,6 +89,7 @@ class Tvariable_Base : public Selection {
 
   std::vector<TH1D> met_corr;
   std::vector<TH1D> met_uncorr;
+  std::vector<TH1D> met_patcorr;
   std::vector<TH1D> onejet;
   std::vector<TH1D> onejet_eta;
   std::vector<TH1D> NbJets;
@@ -112,8 +113,7 @@ class Tvariable_Base : public Selection {
   double csvl,csvm,csvt;
   double normunc_dy,normunc_tt,normunc_tw,normunc_diboson,normunc_qcd;
   int n_mu,n_e;
-  bool doWWObjects;
-  bool useMadgraphZ;
+  bool isQCDEvent;
   bool doPDFuncertainty;
   bool doTriggerUncertainty,doPileupUncertainty;
   bool doElectronIdUncertainty,doElectronScaleUncertainty,doElectronResUncertainty;
@@ -142,7 +142,6 @@ class Tvariable_Base : public Selection {
   bool isFakeElectron(unsigned int idx, unsigned int vtx);
 
   double ZPtReweight(double zpt);
-  double PowhegReweight(double zpt);
   double ZPtRelUnc(double zpt);
   double ZPtMadgraphRelUnc(double zpt);
 
@@ -150,8 +149,6 @@ class Tvariable_Base : public Selection {
   double FakerateError(double pt, double eta, TH2D *fakeRateHist);
 
   TFile* FRFile;
-  TFile* ZptCorrFile;
-  TH1D* ZptCorrection;
   TH2D* ElectronFakeRate35;
   TH2D* ElectronFakeRate20;
   TH2D* ElectronFakeRate50;
