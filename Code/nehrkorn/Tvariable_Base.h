@@ -90,6 +90,8 @@ class Tvariable_Base : public Selection {
   std::vector<TH1D> met_corr;
   std::vector<TH1D> met_uncorr;
   std::vector<TH1D> met_patcorr;
+  std::vector<TH1D> mtlead;
+  std::vector<TH1D> mttrail;
   std::vector<TH1D> onejet;
   std::vector<TH1D> onejet_eta;
   std::vector<TH1D> NbJets;
@@ -109,7 +111,7 @@ class Tvariable_Base : public Selection {
   std::vector<TH1D> pdf_w0;
   std::vector<TH1D> pdf_w1;
 
-  double mu_ptlow,e_ptlow,mu_eta,e_eta,lead_pt,trail_pt,lead_eta,trail_eta,mmin,jet_pt,jet_eta,singlejet,met,ptbalance,zmin,zmax;
+  double mu_ptlow,e_ptlow,mu_eta,e_eta,lead_pt,trail_pt,lead_eta,trail_eta,mmin,mmax,jet_pt,jet_eta,singlejet,met,ptbalance,zmin,zmax;
   double csvl,csvm,csvt;
   double normunc_dy,normunc_tt,normunc_tw,normunc_diboson,normunc_qcd;
   int n_mu,n_e;
@@ -158,6 +160,7 @@ class Tvariable_Base : public Selection {
   double fakeRate;
   double fakeRateMu1, fakeRateMu2;
   double fakeRateE1, fakeRateE2;
+  std::vector<int> eventNumbersFromFile;
 
  private:
   // everything is protected for inheritance reasons

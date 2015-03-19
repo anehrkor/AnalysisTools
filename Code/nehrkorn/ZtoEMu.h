@@ -131,8 +131,10 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> zjetpt_thresh;
   std::vector<TH1D> zjetpt_thresh_rec;
 
-  std::vector<TH1D> sip;
-  std::vector<TH1D> sip_nm0;
+  std::vector<TH1D> sipe;
+  std::vector<TH1D> sipe_nm0;
+  std::vector<TH1D> sipmu;
+  std::vector<TH1D> sipmu_nm0;
   std::vector<TH1D> ptbal_zoom;
   std::vector<TH1D> nfakes;
   std::vector<TH1D> ht_pseudo;

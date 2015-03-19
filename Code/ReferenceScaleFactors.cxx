@@ -635,76 +635,76 @@ double ReferenceScaleFactors::HiggsTauTau_MuTau_IsoUnc_Mu(TLorentzVector vect){
 //
 
 // Electrons need eta from supercluster -> not using four vector as argument
-double ReferenceScaleFactors::ElectronReconstruction2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronReconstruction2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eff = 1.;
 	if(fabs(Eta)<2.5){
-		if(et>=200) et = 199.;
-		eff = ElectronRecoEff->GetBinContent(ElectronRecoEff->FindFixBin(et,Eta));
+		if(pt>=200) pt = 199.;
+		eff = ElectronRecoEff->GetBinContent(ElectronRecoEff->FindFixBin(pt,Eta));
 	}
 	return eff;
 }
 
-double ReferenceScaleFactors::ElectronReconstructionUnc2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronReconstructionUnc2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double err = 0.;
 	if(fabs(Eta)<2.5){
-		if(et>=200) et = 199.;
-		err = ElectronRecoEff->GetBinError(ElectronRecoEff->FindFixBin(et,Eta));
+		if(pt>=200) pt = 199.;
+		err = ElectronRecoEff->GetBinError(ElectronRecoEff->FindFixBin(pt,Eta));
 	}
 	return err;
 }
 
-double ReferenceScaleFactors::ElectronIdTrig2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronIdTrig2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
 	if(eta<2.5){
-		if(et>=200) et = 199;
-		eff = ElectronTrigEff->GetBinContent(ElectronTrigEff->FindFixBin(eta,et));
+		if(pt>=200) pt = 199;
+		eff = ElectronTrigEff->GetBinContent(ElectronTrigEff->FindFixBin(eta,pt));
 	}
 	return eff;
 }
 
-double ReferenceScaleFactors::ElectronIdTrigUnc2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronIdTrigUnc2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double err = 0.;
 	if(eta<2.5){
-		if(et>=200) et = 199;
-		err = ElectronTrigEff->GetBinError(ElectronTrigEff->FindFixBin(eta,et));
+		if(pt>=200) pt = 199;
+		err = ElectronTrigEff->GetBinError(ElectronTrigEff->FindFixBin(eta,pt));
 	}
 	return err;
 }
 
-double ReferenceScaleFactors::ElectronIdNonTrig2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronIdNonTrig2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eff = 1.;
 	if(fabs(Eta)<2.5){
-		if(et>=200) et = 199;
-		eff = ElectronNonTrigEff->GetBinContent(ElectronNonTrigEff->FindFixBin(et,Eta));
+		if(pt>=200) pt = 199;
+		eff = ElectronNonTrigEff->GetBinContent(ElectronNonTrigEff->FindFixBin(pt,Eta));
 	}
 	return eff;
 }
 
-double ReferenceScaleFactors::ElectronIdNonTrigUnc2012(double Et, double Eta){
+double ReferenceScaleFactors::ElectronIdNonTrigUnc2012(double Pt, double Eta){
 	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double err = 0.;
 	if(fabs(Eta)<2.5){
-		if(et>=200) et = 199;
-		err = ElectronNonTrigEff->GetBinError(ElectronNonTrigEff->FindFixBin(et,Eta));
+		if(pt>=200) pt = 199;
+		err = ElectronNonTrigEff->GetBinError(ElectronNonTrigEff->FindFixBin(pt,Eta));
 	}
 	return err;
 }
 
-double ReferenceScaleFactors::ElectronEmbedding2012(double Et, double Eta){
-	double et = Et;
+double ReferenceScaleFactors::ElectronEmbedding2012(double Pt, double Eta){
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
 	double xAxis[10] = {10,15,20,25,30,40,55,70,100,200};
@@ -741,19 +741,19 @@ double ReferenceScaleFactors::ElectronEmbedding2012(double Et, double Eta){
 	hPtEtaSFL.SetBinContent(42,0.93);
 	hPtEtaSFL.SetBinContent(43,1.00);
 
-	if(et>199.99) et = 199.9;
+	if(pt>199.99) pt = 199.9;
 	if(eta>2.49) eta = 2.49;
-	if(et<10.) eff = 0.;
-	eff = hPtEtaSFL.GetBinContent(hPtEtaSFL.FindFixBin(et,eta));
+	if(pt<10.) eff = 0.;
+	eff = hPtEtaSFL.GetBinContent(hPtEtaSFL.FindFixBin(pt,eta));
 
 	return eff;
 }
 
-double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
-	double et = Et;
+double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Pt, double Eta){
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
-	if(et>10 && et<=15){
+	if(pt>10 && pt<=15){
 		if(eta>=0 && eta<0.8){
 			eff = 0.7654;
 		}else if(eta>=0.8 && eta<1.5){
@@ -761,7 +761,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			eff = 0.5719;
 		}
-	}else if(et>15 && et<=20){
+	}else if(pt>15 && pt<=20){
 		if(eta>=0 && eta<0.8){
 			eff = 0.8394;
 		}else if(eta>=0.8 && eta<1.5){
@@ -769,7 +769,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			eff = 0.7024;
 		}
-	}else if(et>20 && et<=25){
+	}else if(pt>20 && pt<=25){
 		if(eta>=0 && eta<0.8){
 			eff = 0.8772;
 		}else if(eta>=0.8 && eta<1.5){
@@ -777,7 +777,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			eff = 0.7631;
 		}
-	}else if(et>25 && et<=30){
+	}else if(pt>25 && pt<=30){
 		if(eta>=0 && eta<0.8){
 			eff = 0.9006;
 		}else if(eta>=0.8 && eta<1.5){
@@ -785,7 +785,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			eff = 0.8092;
 		}
-	}else if(et>30 && et<=35){
+	}else if(pt>30 && pt<=35){
 		if(eta>=0 && eta<0.8){
 			eff = 0.9261;
 		}else if(eta>=0.8 && eta<1.5){
@@ -793,7 +793,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			eff = 0.8469;
 		}
-	}else if(et>35){
+	}else if(pt>35){
 		if(eta>=0 && eta<0.8){
 			eff = 0.9514;
 		}else if(eta>=0.8 && eta<1.5){
@@ -805,11 +805,11 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Id_E(double Et, double Eta){
 	return eff;
 }
 
-double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
-	double et = Et;
+double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Pt, double Eta){
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double err = 0.;
-	if(et>10 && et<=15){
+	if(pt>10 && pt<=15){
 		if(eta>=0 && eta<0.8){
 			err = 0.0149;
 		}else if(eta>=0.8 && eta<1.5){
@@ -817,7 +817,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			err = 0.0131;
 		}
-	}else if(et>15 && et<=20){
+	}else if(pt>15 && pt<=20){
 		if(eta>=0 && eta<0.8){
 			err = 0.0045;
 		}else if(eta>=0.8 && eta<1.5){
@@ -825,7 +825,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			err = 0.0075;
 		}
-	}else if(et>20 && et<=25){
+	}else if(pt>20 && pt<=25){
 		if(eta>=0 && eta<0.8){
 			err = 0.0023;
 		}else if(eta>=0.8 && eta<1.5){
@@ -833,7 +833,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			err = 0.0061;
 		}
-	}else if(et>25 && et<=30){
+	}else if(pt>25 && pt<=30){
 		if(eta>=0 && eta<0.8){
 			err = 0.0018;
 		}else if(eta>=0.8 && eta<1.5){
@@ -841,7 +841,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			err = 0.0024;
 		}
-	}else if(et>30 && et<=35){
+	}else if(pt>30 && pt<=35){
 		if(eta>=0 && eta<0.8){
 			err = 0.0007;
 		}else if(eta>=0.8 && eta<1.5){
@@ -849,7 +849,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_IdUnc_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			err = 0.0024;
 		}
-	}else if(et>35){
+	}else if(pt>35){
 		if(eta>=0 && eta<0.8){
 			err = 0.0002;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1157,51 +1157,51 @@ double ReferenceScaleFactors::HiggsTauTau_MuTau_Trigger_Tau_ScaleMCtoData(TLoren
 // Final state e+mu
 //
 
-double ReferenceScaleFactors::HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double e_et, double e_eta, TString path){
+double ReferenceScaleFactors::HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double e_pt, double e_eta, TString path){
 	double eff = 1.;
 	if(path.Contains("Mu17_Ele8")){
-		eff = HiggsWW_EMu_SingleMu(mu_vect) + (1-HiggsWW_EMu_SingleMu(mu_vect))*HiggsWW_EMu_SingleEle(e_et, e_eta)
-				+ (1-HiggsWW_EMu_SingleMu(mu_vect))*(1-HiggsWW_EMu_SingleEle(e_et, e_eta))*
-				(HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_et, e_eta) + (1-HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_et, e_eta))*HiggsWW_EMu_DoubleEleLeading(e_et, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect));
+		eff = HiggsWW_EMu_SingleMu(mu_vect) + (1-HiggsWW_EMu_SingleMu(mu_vect))*HiggsWW_EMu_SingleEle(e_pt, e_eta)
+				+ (1-HiggsWW_EMu_SingleMu(mu_vect))*(1-HiggsWW_EMu_SingleEle(e_pt, e_eta))*
+				(HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_pt, e_eta) + (1-HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_pt, e_eta))*HiggsWW_EMu_DoubleEleLeading(e_pt, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect));
 	}
 	if(path.Contains("Mu8_Ele17")){
-		eff = HiggsWW_EMu_SingleEle(e_et, e_eta) + (1-HiggsWW_EMu_SingleEle(e_et, e_eta))*HiggsWW_EMu_SingleMu(mu_vect)
-				+ (1-HiggsWW_EMu_SingleEle(e_et, e_eta))*(1-HiggsWW_EMu_SingleMu(mu_vect))*
-				(HiggsWW_EMu_DoubleEleLeading(e_et, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect) + (1-HiggsWW_EMu_DoubleEleLeading(e_et, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect))*HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_et, e_eta));
+		eff = HiggsWW_EMu_SingleEle(e_pt, e_eta) + (1-HiggsWW_EMu_SingleEle(e_pt, e_eta))*HiggsWW_EMu_SingleMu(mu_vect)
+				+ (1-HiggsWW_EMu_SingleEle(e_pt, e_eta))*(1-HiggsWW_EMu_SingleMu(mu_vect))*
+				(HiggsWW_EMu_DoubleEleLeading(e_pt, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect) + (1-HiggsWW_EMu_DoubleEleLeading(e_pt, e_eta)*HiggsWW_EMu_DoubleMuTrailing(mu_vect))*HiggsWW_EMu_DoubleMuLeading(mu_vect)*HiggsWW_EMu_DoubleEleTrailing(e_pt, e_eta));
 	}
 	return eff;
 }
 
-double ReferenceScaleFactors::HiggsWW_EMu_SingleEle(double Et, double Eta){
+double ReferenceScaleFactors::HiggsWW_EMu_SingleEle(double Pt, double Eta){
 	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
-	if(et>=60.)et=55.;
-	if(eta<1.5) eff = HiggsWW_EMu_SingleEle15->GetBinContent(HiggsWW_EMu_SingleEle15->FindFixBin(et));
-	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_SingleEle25->GetBinContent(HiggsWW_EMu_SingleEle25->FindFixBin(et));
+	if(pt>=60.)pt=55.;
+	if(eta<1.5) eff = HiggsWW_EMu_SingleEle15->GetBinContent(HiggsWW_EMu_SingleEle15->FindFixBin(pt));
+	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_SingleEle25->GetBinContent(HiggsWW_EMu_SingleEle25->FindFixBin(pt));
 	return eff;
 }
 
-double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleLeading(double Et, double Eta){
+double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleLeading(double Pt, double Eta){
 	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
-	if(et>=60.)et=55.;
-	if(eta<1.5) eff = HiggsWW_EMu_DoubleEleLead15->GetBinContent(HiggsWW_EMu_DoubleEleLead15->FindFixBin(et));
-	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_DoubleEleLead25->GetBinContent(HiggsWW_EMu_DoubleEleLead25->FindFixBin(et));
+	if(pt>=60.)pt=55.;
+	if(eta<1.5) eff = HiggsWW_EMu_DoubleEleLead15->GetBinContent(HiggsWW_EMu_DoubleEleLead15->FindFixBin(pt));
+	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_DoubleEleLead25->GetBinContent(HiggsWW_EMu_DoubleEleLead25->FindFixBin(pt));
 	return eff;
 }
 
-double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleTrailing(double Et, double Eta){
+double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleTrailing(double Pt, double Eta){
 	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
-	double et = Et;
+	double pt = Pt;
 	double eta = fabs(Eta);
 	double eff = 1.;
-	if(et>=60.)et=55.;
-	if(eta<1.5) eff = HiggsWW_EMu_DoubleEleTrail15->GetBinContent(HiggsWW_EMu_DoubleEleTrail15->FindFixBin(et));
-	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_DoubleEleTrail25->GetBinContent(HiggsWW_EMu_DoubleEleTrail25->FindFixBin(et));
+	if(pt>=60.)pt=55.;
+	if(eta<1.5) eff = HiggsWW_EMu_DoubleEleTrail15->GetBinContent(HiggsWW_EMu_DoubleEleTrail15->FindFixBin(pt));
+	if(eta>=1.5 && eta<2.5) eff = HiggsWW_EMu_DoubleEleTrail25->GetBinContent(HiggsWW_EMu_DoubleEleTrail25->FindFixBin(pt));
 	return eff;
 }
 
@@ -1376,10 +1376,10 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_Mu(TLorentzVector vect)
 	return 0.;
 }
 
-double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
-	double et = Et;
+double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Pt, double Eta){
+	double pt = Pt;
 	double eta = fabs(Eta);
-	if(et>10 && et<=15){
+	if(pt>10 && pt<=15){
 		if(eta>=0 && eta<0.8){
 			return 0.9548;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1387,7 +1387,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.9017;
 		}
-	}else if(et>15 && et<=20){
+	}else if(pt>15 && pt<=20){
 		if(eta>=0 && eta<0.8){
 			return 0.9830;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1395,7 +1395,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.9463;
 		}
-	}else if(et>20 && et<=25){
+	}else if(pt>20 && pt<=25){
 		if(eta>=0 && eta<0.8){
 			return 0.9707;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1403,7 +1403,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.9691;
 		}
-	}else if(et>25 && et<=30){
+	}else if(pt>25 && pt<=30){
 		if(eta>=0 && eta<0.8){
 			return 0.9768;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1411,7 +1411,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.9727;
 		}
-	}else if(et>30 && et<=35){
+	}else if(pt>30 && pt<=35){
 		if(eta>=0 && eta<0.8){
 			return 1.0047;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1419,7 +1419,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.9858;
 		}
-	}else if(et>35){
+	}else if(pt>35){
 		if(eta>=0 && eta<0.8){
 			return 1.0063;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1431,10 +1431,10 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_Trigger_E(double Et, double Eta){
 	return 1.;
 }
 
-double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta){
-	double et = Et;
+double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Pt, double Eta){
+	double pt = Pt;
 	double eta = fabs(Eta);
-	if(et>10 && et<=15){
+	if(pt>10 && pt<=15){
 		if(eta>=0 && eta<0.8){
 			return 0.0197;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1442,7 +1442,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.0470;
 		}
-	}else if(et>15 && et<=20){
+	}else if(pt>15 && pt<=20){
 		if(eta>=0 && eta<0.8){
 			return 0.0115;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1450,7 +1450,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.0212;
 		}
-	}else if(et>20 && et<=25){
+	}else if(pt>20 && pt<=25){
 		if(eta>=0 && eta<0.8){
 			return 0.0087;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1458,7 +1458,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.0149;
 		}
-	}else if(et>25 && et<=30){
+	}else if(pt>25 && pt<=30){
 		if(eta>=0 && eta<0.8){
 			return 0.0084;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1466,7 +1466,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.0162;
 		}
-	}else if(et>30 && et<=35){
+	}else if(pt>30 && pt<=35){
 		if(eta>=0 && eta<0.8){
 			return 0.0100;
 		}else if(eta>=0.8 && eta<1.5){
@@ -1474,7 +1474,7 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 		}else if(eta>=1.5 && eta<2.3){
 			return 0.0112;
 		}
-	}else if(et>35){
+	}else if(pt>35){
 		if(eta>=0 && eta<0.8){
 			return 0.0078;
 		}else if(eta>=0.8 && eta<1.5){

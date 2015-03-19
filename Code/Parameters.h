@@ -20,6 +20,7 @@ class Parameters {
   void GetInt(TString p, int &v, int dv=0);
   void GetDouble(TString p, double &v, double dv=0.0);
   void GetVectorString(TString p, std::vector<TString> &v, TString dv="");
+  void GetVectorInt(TString p, std::vector<int> &v, int dv=0, bool noLineLimit=false);
   void GetVectorStringDouble(TString p, std::vector<TString> &v1, std::vector<double> &v2);
 
  private:

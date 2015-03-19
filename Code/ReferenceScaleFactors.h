@@ -34,15 +34,15 @@ public:
 	double HiggsTauTau_MuTau_IsoUnc_Mu(TLorentzVector vect);
 
 	// Electron Id scale factors
-	double ElectronReconstruction2012(double Et, double Eta);
-	double ElectronReconstructionUnc2012(double Et, double Eta);
-	double ElectronIdTrig2012(double Et, double Eta);
-	double ElectronIdTrigUnc2012(double Et, double Eta);
-	double ElectronIdNonTrig2012(double Et, double Eta);
-	double ElectronIdNonTrigUnc2012(double Et, double Eta);
-	double ElectronEmbedding2012(double Et, double Eta);
-	double HiggsTauTau_EMu_Id_E(double Et, double Eta);
-	double HiggsTauTau_EMu_IdUnc_E(double Et, double Eta);
+	double ElectronReconstruction2012(double Pt, double Eta);
+	double ElectronReconstructionUnc2012(double Pt, double Eta);
+	double ElectronIdTrig2012(double Pt, double Eta);
+	double ElectronIdTrigUnc2012(double Pt, double Eta);
+	double ElectronIdNonTrig2012(double Pt, double Eta);
+	double ElectronIdNonTrigUnc2012(double Pt, double Eta);
+	double ElectronEmbedding2012(double Pt, double Eta);
+	double HiggsTauTau_EMu_Id_E(double Pt, double Eta);
+	double HiggsTauTau_EMu_IdUnc_E(double Pt, double Eta);
 
 	// Tau scale factors
 
@@ -55,18 +55,18 @@ public:
 	double IsoMu24_eta2p1_unc(TLorentzVector vect);
 	// ++++++++++ Final state: e+mu ++++++++++
 	// use this for full trigger efficiency
-	double HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double e_et, double e_eta, TString path);
+	double HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double e_pt, double e_eta, TString path);
 	// efficiencies of individual trigger legs
-	double HiggsWW_EMu_SingleEle(double Et, double Eta);
-	double HiggsWW_EMu_DoubleEleLeading(double Et, double Eta);
-	double HiggsWW_EMu_DoubleEleTrailing(double Et, double Eta);
+	double HiggsWW_EMu_SingleEle(double Pt, double Eta);
+	double HiggsWW_EMu_DoubleEleLeading(double Pt, double Eta);
+	double HiggsWW_EMu_DoubleEleTrailing(double Pt, double Eta);
 	double HiggsWW_EMu_SingleMu(TLorentzVector vect);
 	double HiggsWW_EMu_DoubleMuLeading(TLorentzVector vect);
 	double HiggsWW_EMu_DoubleMuTrailing(TLorentzVector vect);
 	double HiggsTauTau_EMu_Trigger_Mu(TLorentzVector vect);
 	double HiggsTauTau_EMu_TriggerUnc_Mu(TLorentzVector vect);
-	double HiggsTauTau_EMu_Trigger_E(double Et, double Eta);
-	double HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta);
+	double HiggsTauTau_EMu_Trigger_E(double Pt, double Eta);
+	double HiggsTauTau_EMu_TriggerUnc_E(double Pt, double Eta);
 
 	// Final state: mu+tau
 	double Efficiency(double m, double m0, double sigma, double alpha, double n, double norm);

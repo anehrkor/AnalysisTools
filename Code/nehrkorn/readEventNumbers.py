@@ -13,8 +13,7 @@ for i in range(1,174):
 
 	for j in range(len(input)):
 		if("Eventnumber:" in input[j]):
-			number = input[j].split("Eventnumber: ")[1]
-			outfile.write(number)
+			outfile.write(input[j])
 		else:
 			continue
 

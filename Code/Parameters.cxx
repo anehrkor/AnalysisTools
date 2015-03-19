@@ -103,6 +103,37 @@ void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv)
 }
 
 
+void Parameters::GetVectorInt(TString p, std::vector<int> &v, int dv, bool noLineLimit){
+	v.clear();
+	// Open File
+	  ifstream input_file;
+	  input_file.open(file, std::ios::in);
+	  if (!(input_file)){
+	    std::cout << "\nERROR: Opening xml file "<< file <<" for Parameters has failed.\n" << std::endl;
+	    return;
+	  }
+	  //std::cout << "\nOpened Parameters xml file: "<< file <<".\n" << std::endl;
+
+	  std::string s;
+	  unsigned int a=0;
+	  while(getline(input_file, s)){
+		  a++;
+		  if(!noLineLimit && a>10000){std::cout << "Error More than 10000 line in file??? Breaking" << std::endl; break;}
+		  std::stringstream line(s);
+		  TString par;
+		  int val;
+		  line >> par >> val;
+		  par.ToLower();
+		  p.ToLower();
+		  if(p.Contains(par) && par.Contains(p)){
+			  v.push_back(val);
+		  }
+	  }
+	  input_file.close();
+	  return;
+}
+
+
 template<typename T>
 void Parameters::GetParameter(TString p, T &v,T dv){
 

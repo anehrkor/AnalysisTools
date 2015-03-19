@@ -307,28 +307,28 @@ void  ZtoEMu::Configure(){
       Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_ZMassmin_",htitle,41,19,142,hlabel,"Events"));
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_ZMassmin_",htitle,41,19,142,hlabel,"Events"));
     }
-    
-    // calling external files (e.g. root files for efficiencies)
-    TString baseCode = "";
-    TString baseEff = "";
-	if(runtype==GRID){
-		baseEff = (TString)std::getenv("PWD")+"/Code/"+"/nehrkorn/";
-	}
-	else if(runtype==Local){
-		baseEff = (TString)std::getenv("workdir")+"/Code/"+"/nehrkorn/";
-	}
-	RSF = new ReferenceScaleFactors(runtype);
-	FRFile = new TFile(baseEff+"FakeRates_2012_19ifb_rereco.root");
-
-	ElectronFakeRate35 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_35"));
-	ElectronFakeRate20 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_20"));
-	ElectronFakeRate50 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_50"));
-	MuonFakeRate15 = (TH2D*)(FRFile->Get("MuonFakeRateHist_15"));
-	MuonFakeRate5 = (TH2D*)(FRFile->Get("MuonFakeRateHist_5"));
-	MuonFakeRate30 = (TH2D*)(FRFile->Get("MuonFakeRateHist_30"));
 
     //-----------
   }
+
+  // calling external files (e.g. root files for efficiencies)
+  TString baseEff = "";
+  if(runtype==GRID){
+	  baseEff = (TString)std::getenv("PWD")+"/Code/"+"/nehrkorn/";
+  }
+  else if(runtype==Local){
+	  baseEff = (TString)std::getenv("workdir")+"/Code/"+"/nehrkorn/";
+  }
+  RSF = new ReferenceScaleFactors(runtype);
+  FRFile = new TFile(baseEff+"FakeRates_2012_19ifb_rereco.root");
+
+  ElectronFakeRate35 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_35"));
+  ElectronFakeRate20 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_20"));
+  ElectronFakeRate50 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_50"));
+  MuonFakeRate15 = (TH2D*)(FRFile->Get("MuonFakeRateHist_15"));
+  MuonFakeRate5 = (TH2D*)(FRFile->Get("MuonFakeRateHist_5"));
+  MuonFakeRate30 = (TH2D*)(FRFile->Get("MuonFakeRateHist_30"));
+
   // Setup NPassed Histogams
   Npassed=HConfig.GetTH1D(Name+"_NPass","Cut Flow",NCuts+1,-1,NCuts,"Number of Accumulative Cuts Passed","Events");
   // Setup Extra Histograms
@@ -412,8 +412,10 @@ void  ZtoEMu::Configure(){
   zjetpt_thresh=HConfig.GetTH1D(Name+"_zjetpt_thresh","zjetpt_thresh",40,0.,200.,"p_{T}^{jet} (GeV)");
   zjetpt_thresh_rec=HConfig.GetTH1D(Name+"_zjetpt_thresh_rec","zjetpt_thresh_rec",40,0.,200.,"p_{T}^{jet} (GeV)");
 
-  sip=HConfig.GetTH1D(Name+"_sip","sip",10,0.,10.,"Significance of impact parameter (3D)");
-  sip_nm0=HConfig.GetTH1D(Name+"_sip_nm0","sip_nm0",10,0.,10.,"Significance of impact parameter (3D)");
+  sipe=HConfig.GetTH1D(Name+"_sipe","sipe",10,0.,10.,"Significance of electron impact parameter (3D)");
+  sipe_nm0=HConfig.GetTH1D(Name+"_sipe_nm0","sipe_nm0",10,0.,10.,"Significance of electron impact parameter (3D)");
+  sipmu=HConfig.GetTH1D(Name+"_sipmu","sipmu",10,0.,10.,"Significance of muon impact parameter (3D)");
+  sipmu_nm0=HConfig.GetTH1D(Name+"_sipmu_nm0","sipmu_nm0",10,0.,10.,"Significance of muon impact parameter (3D)");
   ptbal_zoom=HConfig.GetTH1D(Name+"_ptbal_zoom","ptbal_zoom",15,0.,30.,"p_{T}^{e#mu} (GeV)");
   nfakes=HConfig.GetTH1D(Name+"_nfakes","nfakes",2,0.5,2.5,"number of fake leptons");
   ht_pseudo=HConfig.GetTH1D(Name+"_ht_pseudo","ht_pseudo",200,0.,1000.,"#Sigma p_{T}^{jet} (GeV)");
@@ -555,8 +557,10 @@ void  ZtoEMu::Store_ExtraDist(){
  Extradist1d.push_back(&zjetpt_thresh);
  Extradist1d.push_back(&zjetpt_thresh_rec);
 
- Extradist1d.push_back(&sip);
- Extradist1d.push_back(&sip_nm0);
+ Extradist1d.push_back(&sipe);
+ Extradist1d.push_back(&sipe_nm0);
+ Extradist1d.push_back(&sipmu);
+ Extradist1d.push_back(&sipmu_nm0);
  Extradist1d.push_back(&ptbal_zoom);
  Extradist1d.push_back(&nfakes);
  Extradist1d.push_back(&ht_pseudo);
@@ -755,9 +759,8 @@ void  ZtoEMu::doEvent(){
   if(verbose) std::cout << "Setting pt thresholds" << std::endl;
   bool passembed = false;
   bool leadingmu = false;
-  value.at(ptthreshold)=0;
+  value.at(ptthreshold)=1;
   if(muidx!=999 && eidx!=999){
-	  value.at(ptthreshold)=1;
 	  if(Ntp->Muon_p4(muidx).Pt()<=mu_ptlow || Ntp->Electron_p4(eidx).Pt()<=e_ptlow) value.at(ptthreshold)=0;
 	  if(Ntp->Muon_p4(muidx).Pt()<mu_pthigh && Ntp->Electron_p4(eidx).Pt()<e_pthigh) value.at(ptthreshold)=0;
 	  if(value.at(ptthreshold)==1 && Ntp->GetMCID()==DataMCType::DY_emu_embedded) passembed = true;
@@ -1228,8 +1231,8 @@ void  ZtoEMu::doEvent(){
 		  && pass.at(triLeptonVeto)
 		  && pass.at(charge)
 		  	  	  ){
-	  if(Ntp->GetMCID()==30 || Ntp->GetMCID()==33){
-		  printf("Eventnumber: %i\n",Ntp->EventNumber());
+	  if((Ntp->GetMCID()==30 || Ntp->GetMCID()==33) && !(fakemu || fakee)){
+		  printf("Eventnumber: %i, mu pt: %f, mu eta, %f, e pt: %f, e eta: %f\n",Ntp->EventNumber(),Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx));
 	  }
   }
 
@@ -1374,7 +1377,8 @@ void  ZtoEMu::doEvent(){
 		  NPV3d.at(t).Fill(Ntp->NVtx(),w);
 		  NPVfine.at(t).Fill(Ntp->NVtx(),w);
 	  }
-	  sip.at(t).Fill(Ntp->vertexSignificance(Ntp->Electron_Poca(eidx),vertex),w);
+	  sipe.at(t).Fill(Ntp->vertexSignificance(Ntp->Electron_Poca(eidx),vertex),w);
+	  sipmu.at(t).Fill(Ntp->vertexSignificance(Ntp->Muon_Poca(muidx),vertex),w);
 
 	  // plots for ARC
 	  if(pass.at(triLeptonVeto) && pass.at(charge)){
@@ -1498,7 +1502,8 @@ void  ZtoEMu::doEvent(){
 					  nm0_ptbalance.at(t).Fill(value.at(ptBalance),w);
 					  zmass_zoom.at(t).Fill(m,w);
 					  ptsum_nm0.at(t).Fill(Ntp->Muon_p4(muidx).Pt()+Ntp->Electron_p4(eidx).Pt(),w);
-					  sip_nm0.at(t).Fill(Ntp->vertexSignificance(Ntp->Electron_Poca(eidx),vertex),w);
+					  sipe_nm0.at(t).Fill(Ntp->vertexSignificance(Ntp->Electron_Poca(eidx),vertex),w);
+					  sipmu_nm0.at(t).Fill(Ntp->vertexSignificance(Ntp->Muon_Poca(muidx),vertex),w);
 					  if(pass.at(ZMassmax)
 							  && pass.at(ZMassmin)){
 						  invmass_zmass.at(t).Fill(m,w);

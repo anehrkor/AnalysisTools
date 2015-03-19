@@ -25,8 +25,9 @@ Tvariable_Base::Tvariable_Base(TString Name_, TString id_):
   ,trail_pt(20)
   ,lead_eta(2.1)
   ,trail_eta(2.4)
-  ,mmin(50)
-  ,jet_pt(18)
+  ,mmin(60)
+  ,mmax(120)
+  ,jet_pt(20)
   ,jet_eta(5.2) // 2.5 in dileptonic top selection
   ,singlejet(40)
   ,met(30)
@@ -141,6 +142,21 @@ void  Tvariable_Base::Configure(){
     if(i==ptBalance)          cut.at(ptBalance)=ptbalance;
     if(i==ZMassmax)           cut.at(ZMassmax)=zmax;
     if(i==ZMassmin)           cut.at(ZMassmin)=zmin;
+  }
+
+  // set category specific cuts
+  if(categoryFlag == "ZtoEE"){
+	  std::cout << "Using category: ZtoEE" << std::endl;
+	  cut.at(NE) = 2;
+	  cut.at(NMu) = 0;
+  }else if(categoryFlag == "ZtoMuMu"){
+	  std::cout << "Using category: ZtoMuMu" << std::endl;
+	  cut.at(NE) = 0;
+	  cut.at(NMu) = 2;
+  }else if(categoryFlag == "ZtoEMu"){
+	  std::cout << "Using category: ZtoEMu" << std::endl;
+	  cut.at(NE) = 1;
+	  cut.at(NMu) = 1;
   }
 
   TString hlabel;
@@ -293,27 +309,31 @@ void  Tvariable_Base::Configure(){
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_ZMassmin_",htitle,41,19,142,hlabel,"Events"));
     }
 
-    // calling external files (e.g. root files for efficiencies)
-    TString baseCode = "";
-    TString baseEff = "";
-	if(runtype==GRID){
-		baseEff = (TString)std::getenv("PWD")+"/Code/"+"/nehrkorn/";
-	}
-	else if(runtype==Local){
-		baseEff = (TString)std::getenv("workdir")+"/Code/"+"/nehrkorn/";
-	}
-	RSF = new ReferenceScaleFactors(runtype);
-	FRFile = new TFile(baseEff+"FakeRates_2012_19ifb_rereco.root");
-
-	ElectronFakeRate35 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_35"));
-	ElectronFakeRate20 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_20"));
-	ElectronFakeRate50 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_50"));
-	MuonFakeRate15 = (TH2D*)(FRFile->Get("MuonFakeRateHist_15"));
-	MuonFakeRate5 = (TH2D*)(FRFile->Get("MuonFakeRateHist_5"));
-	MuonFakeRate30 = (TH2D*)(FRFile->Get("MuonFakeRateHist_30"));
-
     //-----------
   }
+
+  // calling external files (e.g. root files for efficiencies)
+  TString baseEff = "";
+  if(runtype==GRID){
+	  baseEff = (TString)std::getenv("PWD")+"/Code/"+"/nehrkorn/";
+  }
+  else if(runtype==Local){
+	  baseEff = (TString)std::getenv("workdir")+"/Code/"+"/nehrkorn/";
+  }
+  RSF = new ReferenceScaleFactors(runtype);
+  FRFile = new TFile(baseEff+"FakeRates_2012_19ifb_rereco.root");
+
+  ElectronFakeRate35 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_35"));
+  ElectronFakeRate20 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_20"));
+  ElectronFakeRate50 = (TH2D*)(FRFile->Get("ElectronFakeRateHist_50"));
+  MuonFakeRate15 = (TH2D*)(FRFile->Get("MuonFakeRateHist_15"));
+  MuonFakeRate5 = (TH2D*)(FRFile->Get("MuonFakeRateHist_5"));
+  MuonFakeRate30 = (TH2D*)(FRFile->Get("MuonFakeRateHist_30"));
+
+  //reading event numbers from Nick's file
+  Parameters Par(baseEff + "eventNumbersNick");
+  Par.GetVectorInt("EventNumber:",eventNumbersFromFile);
+
   // Setup NPassed Histogams
   Npassed=HConfig.GetTH1D(Name+"_NPass","Cut Flow",NCuts+1,-1,NCuts,"Number of Accumulative Cuts Passed","Events");
   // Setup Extra Histograms
@@ -366,6 +386,8 @@ void  Tvariable_Base::Configure(){
   met_corr=HConfig.GetTH1D(Name+"_met_corr","met_corr",30,0.,150.,"MET (GeV)");
   met_uncorr=HConfig.GetTH1D(Name+"_met_uncorr","met_uncorr",30,0.,150.,"uncorrected MET (GeV)");
   met_patcorr=HConfig.GetTH1D(Name+"_met_patcorr","met_patcorr",30,0.,150.,"pat corrected MET (GeV)");
+  mtlead=HConfig.GetTH1D(Name+"_mtlead","mtlead",40,0.,200.,"m_{T}^{lead} (GeV)");
+  mttrail=HConfig.GetTH1D(Name+"_mttrail","mttrail",40,0.,200.,"m_{T}^{trail} (GeV)");
   onejet=HConfig.GetTH1D(Name+"_onejet","onejet",40,0.,200.,"p_{T}^{jet} (GeV)");
   onejet_eta=HConfig.GetTH1D(Name+"_onejet_eta","onejet_eta",40,-5.,5.,"#eta_{jet}");
   NbJets=HConfig.GetTH1D(Name+"_NbJets","NbJets",20,0,20,"number of b jets");
@@ -391,21 +413,6 @@ void  Tvariable_Base::Configure(){
   HConfig.GetHistoInfo(types,CrossSectionandAcceptance,legend,colour);
   for(unsigned int i=0;i<CrossSectionandAcceptance.size();i++){
     std::cout << i << " CrossSectionandAcceptance " << CrossSectionandAcceptance.at(i) << std::endl;
-  }
-
-  // set category specific cuts
-  if(categoryFlag == "ZtoEE"){
-	  std::cout << "Using category: ZtoEE" << std::endl;
-	  cut.at(NE) = 2;
-	  cut.at(NMu) = 0;
-  }else if(categoryFlag == "ZtoMuMu"){
-	  std::cout << "Using category: ZtoMuMu" << std::endl;
-	  cut.at(NE) = 0;
-	  cut.at(NMu) = 2;
-  }else if(categoryFlag == "ZtoEMu"){
-	  std::cout << "Using category: ZtoEMu" << std::endl;
-	  cut.at(NE) = 1;
-	  cut.at(NMu) = 1;
   }
 }
 
@@ -462,6 +469,8 @@ void  Tvariable_Base::Store_ExtraDist(){
  Extradist1d.push_back(&met_corr);
  Extradist1d.push_back(&met_uncorr);
  Extradist1d.push_back(&met_patcorr);
+ Extradist1d.push_back(&mtlead);
+ Extradist1d.push_back(&mttrail);
  Extradist1d.push_back(&onejet);
  Extradist1d.push_back(&onejet_eta);
  Extradist1d.push_back(&NbJets);
@@ -593,6 +602,9 @@ void  Tvariable_Base::doEvent(){
   std::vector<unsigned int> Fakeelectrons;
   bool matchRecoMuon = false;
 
+  //debug int's
+  unsigned kin(0), matchMu(0);
+
   // electron ID cuts (eta-dependent MVA or simple cut-based)
   for(unsigned i=0;i<Ntp->NElectrons();i++){
 	  matchRecoMuon = false;
@@ -600,6 +612,7 @@ void  Tvariable_Base::doEvent(){
 			  && fabs(Ntp->Electron_supercluster_eta(i))<e_eta
 			  && vertex>=0
 			  ){
+		  kin++;
 		  // no overlapping reco muons
 		  for(unsigned j=0;j<Ntp->NMuons();j++){
 			  if(Ntp->Muon_p4(j).Pt()<3) continue;
@@ -607,6 +620,7 @@ void  Tvariable_Base::doEvent(){
 			  if(Ntp->Electron_p4(i).DeltaR(Ntp->Muon_p4(j))<0.3) matchRecoMuon = true;
 		  }
 		  if(matchRecoMuon) continue;
+		  matchMu++;
 		  if(isWWElectron(i,vertex)
 				  && Ntp->Electron_RelIsoDep04(i)<0.15
 				  ){
@@ -622,6 +636,10 @@ void  Tvariable_Base::doEvent(){
 
   value.at(NE)=GoodElectrons.size();
   pass.at(NE)=(value.at(NE)>=cut.at(NE));
+
+  if(!pass.at(NE) && Ntp->NElectrons()>1){
+	  std::cout << "Number of electrons in event: " << Ntp->NElectrons() << ". Fractions of electrons passing kin: " << (float)kin/Ntp->NElectrons() << ", matchMu: " << (float)matchMu/Ntp->NElectrons() << ", eleId: " << (float)GoodElectrons.size()/Ntp->NElectrons() << std::endl;
+  }
 
   unsigned int eidx1(999), eidx2(999);
   double hardeste(0);
@@ -650,10 +668,9 @@ void  Tvariable_Base::doEvent(){
   if(verbose) std::cout << "Setting pt thresholds" << std::endl;
   bool passembed = false;
   bool mutrig = false;
-  value.at(ptthreshold)=0;
+  value.at(ptthreshold)=1;
   if(categoryFlag == "ZtoEE"){
 	  if(eidx1 != 999 && eidx2 != 999){
-		  value.at(ptthreshold) = 1;
 		  if(Ntp->Electron_p4(eidx1).Pt()<lead_pt || fabs(Ntp->Electron_supercluster_eta(eidx1))>lead_eta) value.at(ptthreshold) = 0;
 		  if(Ntp->Electron_p4(eidx2).Pt()<trail_pt || fabs(Ntp->Electron_supercluster_eta(eidx2))>trail_eta) value.at(ptthreshold) = 0;
 		  if(value.at(ptthreshold) == 1 && Ntp->GetMCID() == DataMCType::DY_emu_embedded) passembed = true;
@@ -662,7 +679,6 @@ void  Tvariable_Base::doEvent(){
 	  }
   }else if(categoryFlag == "ZtoMuMu"){
 	  if(muidx1 != 999 && muidx2 != 999){
-		  value.at(ptthreshold) = 1;
 		  if(Ntp->Muon_p4(muidx1).Pt()<lead_pt || fabs(Ntp->Muon_p4(muidx1).Eta())>lead_eta) value.at(ptthreshold) = 0;
 		  if(Ntp->Muon_p4(muidx2).Pt()<trail_pt || fabs(Ntp->Muon_p4(muidx2).Eta())>trail_eta) value.at(ptthreshold) = 0;
 		  if(value.at(ptthreshold) == 1 && Ntp->GetMCID() == DataMCType::DY_emu_embedded) passembed = true;
@@ -671,7 +687,6 @@ void  Tvariable_Base::doEvent(){
 	  }
   }else if(categoryFlag == "ZtoEMu"){
 	  if(muidx1 != 999 && eidx1 != 999){
-		  value.at(ptthreshold) = 1;
 		  if(Ntp->Muon_p4(muidx1).Pt() > Ntp->Electron_p4(eidx1).Pt()){
 			  if(Ntp->Muon_p4(muidx1).Pt()<lead_pt || fabs(Ntp->Muon_p4(muidx1).Eta())>lead_eta) value.at(ptthreshold) = 0;
 			  if(Ntp->Electron_p4(eidx1).Pt()<trail_pt || fabs(Ntp->Electron_supercluster_eta(eidx1))>trail_eta) value.at(ptthreshold) = 0;
@@ -692,8 +707,7 @@ void  Tvariable_Base::doEvent(){
   // m(ll)
   //
   if(verbose) std::cout << "m(ll)" << std::endl;
-  //value.at(mll)=mmin+1;
-  value.at(mll)=61;
+  value.at(mll)=mmin+1;
   if(categoryFlag == "ZtoEE"){
 	  if(eidx1 != 999 && eidx2 != 999){
 		  value.at(mll) = (Ntp->Electron_p4(eidx1) + Ntp->Electron_p4(eidx2)).M();
@@ -707,8 +721,7 @@ void  Tvariable_Base::doEvent(){
 		  value.at(mll) = (Ntp->Muon_p4(muidx1) + Ntp->Electron_p4(eidx1)).M();
 	  }
   }
-  //pass.at(mll)=(value.at(mll)>cut.at(mll));
-  pass.at(mll)=(value.at(mll)>=60. && value.at(mll)<120.);
+  pass.at(mll)=(value.at(mll)>=mmin && value.at(mll)<mmax);
 
   ///////////////////////////////////////////////
   //
@@ -735,11 +748,11 @@ void  Tvariable_Base::doEvent(){
 	  trilep++;
   }
   if(categoryFlag == "ZtoEE"){
-	  if(muidx1 != 999 || muidx2 !=999) trilep++;
+	  if(muidx1 != 999 || muidx2 != 999) trilep++;
   }else if(categoryFlag == "ZtoMuMu"){
-	  if(eidx1 != 999 || eidx2 !=999) trilep++;
+	  if(eidx1 != 999 || eidx2 != 999) trilep++;
   }else if(categoryFlag == "ZtoEMu"){
-	  if(muidx2 != 999 || eidx2 != 999) trilep++;
+	  if(muidx2 != 999 || eidx2 !=  999) trilep++;
   }
   value.at(triLeptonVeto)=trilep;
   pass.at(triLeptonVeto)=(value.at(triLeptonVeto)==cut.at(triLeptonVeto));
@@ -1131,16 +1144,16 @@ void  Tvariable_Base::doEvent(){
     		//todo: implement trigger efficiencies
     		if(Ntp->matchTrigger(Ntp->Electron_p4(eidx1),0.2,"HLT_Ele27_WP80_v","electron")){
     			if(doTriggerUncertainty){
-    				trigunc = RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx1).Et(),Ntp->Electron_supercluster_eta(eidx1))*0.002;
+    				trigunc = RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1))*0.002;
     				if(!upwardUncertainty) trigunc *= -1;
     			}
-    			w*=(RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx1).Et(),Ntp->Electron_supercluster_eta(eidx1))+trigunc);
+    			w*=(RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx1).Pt(),Ntp->Electron_supercluster_eta(eidx1))+trigunc);
     		}else if(Ntp->matchTrigger(Ntp->Electron_p4(eidx2),0.2,"HLT_Ele27_WP80_v","electron")){
     			if(doTriggerUncertainty){
-    				trigunc = RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx2).Et(),Ntp->Electron_supercluster_eta(eidx2))*0.002;
+    				trigunc = RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2))*0.002;
     				if(!upwardUncertainty) trigunc *= -1;
     			}
-    			w*=(RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx2).Et(),Ntp->Electron_supercluster_eta(eidx2))+trigunc);
+    			w*=(RSF->HiggsWW_EMu_SingleEle(Ntp->Electron_p4(eidx2).Pt(),Ntp->Electron_supercluster_eta(eidx2))+trigunc);
     		}
     	}else if(categoryFlag=="ZtoMuMu"){
     		//todo: implement trigger efficiencies
@@ -1243,8 +1256,18 @@ void  Tvariable_Base::doEvent(){
 		  && pass.at(triLeptonVeto)
 		  && pass.at(charge)
 		  	  	  ){
-	  if((Ntp->GetMCID()==30 || Ntp->GetMCID()==33) && !(fakemu1 || fakemu2 || fakee1 || fakee2)){
-		  printf("Eventnumber: %i, lead pt: %f, lead eta, %f, trail pt: %f, trail eta: %f\n",Ntp->EventNumber(),leadlep.Pt(),leadlep.Eta(),traillep.Pt(),traillep.Eta());
+	  if((Ntp->GetMCID()==30 || Ntp->GetMCID()==33 || Ntp->isData()) && !(fakemu1 || fakemu2 || fakee1 || fakee2)){
+		  printf("Eventnumber: %i, Runnumber: %i, Lumiblock: %i, lead pt: %f, lead eta, %f, trail pt: %f, trail eta: %f\n",Ntp->EventNumber(),Ntp->RunNumber(),Ntp->LuminosityBlock(),leadlep.Pt(),leadlep.Eta(),traillep.Pt(),traillep.Eta());
+	  }
+  }
+
+  if((Ntp->GetMCID()==30 || Ntp->GetMCID()==33 || Ntp->isData()) && !(fakemu1 || fakemu2 || fakee1 || fakee2)){
+	  if(!passAllUntil(charge)){
+		  for(unsigned iEvtNum = 0; iEvtNum < eventNumbersFromFile.size(); iEvtNum++){
+			  if(Ntp->EventNumber() == eventNumbersFromFile.at(iEvtNum)){
+				  printf("Eventnumber %i, Runnumber: %i, Lumiblock: %i, passes Trigger: %i, PrimeVtx: %i, NMu: %i, NE: %i, PtThreshold: %i, Mll: %i, TriLeptonVeto: %i, Charge: %i\n",Ntp->EventNumber(),Ntp->RunNumber(),Ntp->LuminosityBlock(),(int)pass.at(TriggerOk),(int)pass.at(PrimeVtx),(int)pass.at(NMu),(int)pass.at(NE),(int)pass.at(ptthreshold),(int)pass.at(mll),(int)pass.at(triLeptonVeto),(int)pass.at(charge));
+			  }
+		  }
 	  }
   }
 
@@ -1294,12 +1317,14 @@ void  Tvariable_Base::doEvent(){
 	  if(!Ntp->isData() && !isQCDEvent) met_patcorr.at(t).Fill(Ntp->MET_Type1Corr_et(),w);
 	  else met_patcorr.at(t).Fill(Ntp->MET_CorrT0pcT1Txy_et(),w);
 	  mvamet.at(t).Fill(Ntp->MET_CorrMVA_et(),w);
+	  mtlead.at(t).Fill(Ntp->transverseMass(leadlep.Pt(),leadlep.Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
+	  mttrail.at(t).Fill(Ntp->transverseMass(traillep.Pt(),traillep.Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
 	  deltaphi.at(t).Fill(dp,w);
 	  ptbal.at(t).Fill((leadlep+traillep).Pt(),w);
 	  ptbal_zoom.at(t).Fill((leadlep+traillep).Pt(),w);
 	  ptsum.at(t).Fill(leadlep.Pt()+traillep.Pt(),w);
 
-	  if(jetsfromvtx.size()==1 && firstjet_idx!=-1){
+	  if(jetsfromvtx.size()>0 && firstjet_idx!=-1){
 		  onejet.at(t).Fill(Ntp->PFJet_p4(firstjet_idx).Pt(),w);
 		  onejet_eta.at(t).Fill(Ntp->PFJet_p4(firstjet_idx).Eta(),w);
 	  }

@@ -14,13 +14,14 @@ bool dym50 = true;
 bool signaltop = false;
 bool emb = false;
 bool generatorcomparison = false;
+bool blind = false;
 TString prepend = "ztoemu_default_";
 TString signalName = "emu_DY";
 
 void plotting(){
 	SetStyle();
 	//SetExtraText("Simulation"); // for simulation comparison plots
-	//SetExtraText("Private Work"); // for dpg-style conference plots
+	//SetExtraText("Work in progress"); // for dpg-style conference plots
 	
 	bool verbose = false;
 
@@ -270,6 +271,14 @@ void plotting(){
 		}
 		for(unsigned i=0;i<nplots;i++){
 			std::cout << "Plot: " << plots[i] << std::endl;
+			if(blind && plots[i].Contains("mass")){
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(82.1),0);
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(85.1),0);
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(88.1),0);
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(91.1),0);
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(94.1),0);
+				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(97.1),0);
+			}
 			drawPlot(datahists.at(i),getHistos(plots[i],names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",units[i]);
 		}
 	}
@@ -887,6 +896,7 @@ TLegend* createLegend(TH1D* data, TString name){
 // creates legend for data histogram and all backgrounds
 TLegend* createLegend(TH1D* data, std::vector<TH1D*> histos, std::vector<TString> names){
 	TLegend* legend = new TLegend(0.73,0.37,0.93,0.87);
+	//TLegend* legend = new TLegend(0.616834,0.374537,0.930905,0.927831);
 	legend->SetFillColor(0);
 	legend->SetBorderSize(0);
 	legend->SetFillStyle(0);
