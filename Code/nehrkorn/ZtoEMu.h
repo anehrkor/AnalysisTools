@@ -173,6 +173,29 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> met_uncertainties;
   std::vector<TH1D> tt_ptweight;
 
+  std::vector<TH1D> mupt_nm1_notrig;
+  std::vector<TH1D> mupt_nm0_notrig;
+  std::vector<TH1D> mupt_mll_notrig;
+  std::vector<TH1D> mupt_nm1_trig;
+  std::vector<TH1D> mupt_nm0_trig;
+  std::vector<TH1D> mupt_mll_trig;
+  std::vector<TH1D> ept_nm1_notrig;
+  std::vector<TH1D> ept_nm0_notrig;
+  std::vector<TH1D> ept_mll_notrig;
+  std::vector<TH1D> ept_nm1_trig;
+  std::vector<TH1D> ept_nm0_trig;
+  std::vector<TH1D> ept_mll_trig;
+  std::vector<TH1D> mte_cut;
+  std::vector<TH1D> mtmu_cut;
+  std::vector<TH2D> invmass_genmass;
+  std::vector<TH1D> invmass_nogencut;
+  std::vector<TH1D> invmass_gencut;
+  std::vector<TH1D> mtlead;
+  std::vector<TH1D> mtmu_patcorr;
+  std::vector<TH1D> mte_patcorr;
+  std::vector<TH1D> mte_cut_patcorr;
+  std::vector<TH1D> mtmu_cut_patcorr;
+
   std::vector<TH1D> pdf_w0;
   std::vector<TH1D> pdf_w1;
 

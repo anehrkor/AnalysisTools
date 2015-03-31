@@ -461,6 +461,30 @@ void  ZtoEMu::Configure(){
   met_uncertainties=HConfig.GetTH1D(Name+"_met_uncertainties","met_uncertainties",6,-0.5,5.5,"MET uncertainties");
   tt_ptweight=HConfig.GetTH1D(Name+"_tt_ptweight","tt_ptweight",100,0.,1.5,"weight for ttbar pt reweighting");
 
+  mupt_nm1_notrig=HConfig.GetTH1D(Name+"_mupt_nm1_notrig","mupt_nm1_notrig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  mupt_nm0_notrig=HConfig.GetTH1D(Name+"_mupt_nm0_notrig","mupt_nm0_notrig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  mupt_mll_notrig=HConfig.GetTH1D(Name+"_mupt_mll_notrig","mupt_mll_notrig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  mupt_nm1_trig=HConfig.GetTH1D(Name+"_mupt_nm1_trig","mupt_nm1_trig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  mupt_nm0_trig=HConfig.GetTH1D(Name+"_mupt_nm0_trig","mupt_nm0_trig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  mupt_mll_trig=HConfig.GetTH1D(Name+"_mupt_mll_trig","mupt_mll_trig",40,0.,100.,"p_{T}^{#mu} (GeV)");
+  ept_nm1_notrig=HConfig.GetTH1D(Name+"_ept_nm1_notrig","ept_nm1_notrig",40,0.,100.,"p_{T}^{e} (GeV)");
+  ept_nm0_notrig=HConfig.GetTH1D(Name+"_ept_nm0_notrig","ept_nm0_notrig",40,0.,100.,"p_{T}^{e} (GeV)");
+  ept_mll_notrig=HConfig.GetTH1D(Name+"_ept_mll_notrig","ept_mll_notrig",40,0.,100.,"p_{T}^{e} (GeV)");
+  ept_nm1_trig=HConfig.GetTH1D(Name+"_ept_nm1_trig","ept_nm1_trig",40,0.,100.,"p_{T}^{e} (GeV)");
+  ept_nm0_trig=HConfig.GetTH1D(Name+"_ept_nm0_trig","ept_nm0_trig",40,0.,100.,"p_{T}^{e} (GeV)");
+  ept_mll_trig=HConfig.GetTH1D(Name+"_ept_mll_trig","ept_mll_trig",40,0.,100.,"p_{T}^{e} (GeV)");
+  mte_cut=HConfig.GetTH1D(Name+"_mte_cut","mte_cut",7,-0.5,6.5,"Cuts on m_{T}^{e}");
+  mtmu_cut=HConfig.GetTH1D(Name+"_mtmu_cut","mtmu_cut",7,-0.5,6.5,"Cuts on m_{T}^{#mu}");
+  invmass_genmass=HConfig.GetTH2D(Name+"_invmass_genmass","invmass_genmass",20,61,121,30,61,151,"m_{e#mu} (GeV)","m_{Z} (GeV)");
+  invmass_nogencut=HConfig.GetTH1D(Name+"_invmass_nogencut","invmass_nogencut",20,61,121,"m_{e#mu} (GeV)");
+  invmass_gencut=HConfig.GetTH1D(Name+"_invmass_gencut","invmass_gencut",20,61,121,"m_{e#mu} (GeV)");
+  mtlead=HConfig.GetTH1D(Name+"_mtlead","mtlead",40,0.,200.,"m_{T}^{lead lep} (GeV)");
+
+  mtmu_patcorr=HConfig.GetTH1D(Name+"_mtmu_patcorr","mtmu_patcorr",40,0.,200.,"m_{T}^{#mu} (GeV)");
+  mte_patcorr=HConfig.GetTH1D(Name+"_mte_patcorr","mte_patcorr",40,0.,200.,"m_{T}^{e} (GeV)");
+  mte_cut_patcorr=HConfig.GetTH1D(Name+"_mte_cut_patcorr","mte_cut_patcorr",7,-0.5,6.5,"Cuts on m_{T}^{e}");
+  mtmu_cut_patcorr=HConfig.GetTH1D(Name+"_mtmu_cut_patcorr","mtmu_cut_patcorr",7,-0.5,6.5,"Cuts on m_{T}^{#mu}");
+
   if(doPDFuncertainty){
 	  pdf_w0=HConfig.GetTH1D(Name+"_pdf_w0","pdf_w0",nPDFmembers,0,nPDFmembers,"pdf member");
 	  pdf_w1=HConfig.GetTH1D(Name+"_pdf_w1","pdf_w1",nPDFmembers,0,nPDFmembers,"pdf member");
@@ -605,6 +629,30 @@ void  ZtoEMu::Store_ExtraDist(){
  Extradist1d.push_back(&ptbal_optimization);
  Extradist1d.push_back(&met_uncertainties);
  Extradist1d.push_back(&tt_ptweight);
+
+ Extradist1d.push_back(&mupt_nm1_notrig);
+ Extradist1d.push_back(&mupt_nm0_notrig);
+ Extradist1d.push_back(&mupt_mll_notrig);
+ Extradist1d.push_back(&mupt_nm1_trig);
+ Extradist1d.push_back(&mupt_nm0_trig);
+ Extradist1d.push_back(&mupt_mll_trig);
+ Extradist1d.push_back(&ept_nm1_notrig);
+ Extradist1d.push_back(&ept_nm0_notrig);
+ Extradist1d.push_back(&ept_mll_notrig);
+ Extradist1d.push_back(&ept_nm1_trig);
+ Extradist1d.push_back(&ept_nm0_trig);
+ Extradist1d.push_back(&ept_mll_trig);
+ Extradist1d.push_back(&mte_cut);
+ Extradist1d.push_back(&mtmu_cut);
+ Extradist2d.push_back(&invmass_genmass);
+ Extradist1d.push_back(&invmass_nogencut);
+ Extradist1d.push_back(&invmass_gencut);
+ Extradist1d.push_back(&mtlead);
+
+ Extradist1d.push_back(&mtmu_patcorr);
+ Extradist1d.push_back(&mte_patcorr);
+ Extradist1d.push_back(&mte_cut_patcorr);
+ Extradist1d.push_back(&mtmu_cut_patcorr);
 
  if(doPDFuncertainty){
 	 Extradist1d.push_back(&pdf_w0);
@@ -1028,19 +1076,20 @@ void  ZtoEMu::doEvent(){
   //
   if(verbose) std::cout << "do weights" << std::endl;
   double wobs(1),w(1);
+  double puweight(1),embeddweight(1),ttptweight(1),eidweight(1),muidweight(1),trigweight(1);
   if(!Ntp->isData()){
 	// pileup weights only for MC
 	if(Ntp->GetMCID()!=DataMCType::DY_emu_embedded){
-		if(!doPileupUncertainty) w*=Ntp->PUWeight();
+		if(!doPileupUncertainty) puweight*=Ntp->PUWeight();
 	    else{
-	    	if(upwardUncertainty) w*=Ntp->PUWeight_p5();
-	    	else w*= Ntp->PUWeight3D_m5();
+	    	if(upwardUncertainty) puweight*=Ntp->PUWeight_p5();
+	    	else puweight*= Ntp->PUWeight3D_m5();
 	    }
 	}
 	// weights just for embedded samples
     if(Ntp->GetMCID()==DataMCType::DY_emu_embedded){
-    	w*=Ntp->EmbeddedWeight();
-    	if(pass.at(NE)) w*=RSF->ElectronEmbedding2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx));
+    	embeddweight*=Ntp->EmbeddedWeight();
+    	if(pass.at(NE)) embeddweight*=RSF->ElectronEmbedding2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx));
     }
     // weights just for ttbar samples
     if(Ntp->GetMCID()==DataMCType::ttbar){
@@ -1074,17 +1123,16 @@ void  ZtoEMu::doEvent(){
     	}
     	if(nlep==2){
     		tt_ptweight.at(t).Fill(TTbarPtReweight(toppt,antitoppt,"dilepton"));
-    		if(doPtUncertainty) w*=TTbarPtReweight(toppt,antitoppt,"dilepton");
+    		if(doPtUncertainty) ttptweight*=TTbarPtReweight(toppt,antitoppt,"dilepton");
     	}else if(nlep==1 && nhad==1){
     		tt_ptweight.at(t).Fill(TTbarPtReweight(toppt,antitoppt,"ljets"));
-			if(doPtUncertainty) w*=TTbarPtReweight(toppt,antitoppt,"ljets");
+			if(doPtUncertainty) ttptweight*=TTbarPtReweight(toppt,antitoppt,"ljets");
     	}else{
     		tt_ptweight.at(t).Fill(TTbarPtReweight(toppt,antitoppt));
-        	if(doPtUncertainty) w*=TTbarPtReweight(toppt,antitoppt);
+        	if(doPtUncertainty) ttptweight*=TTbarPtReweight(toppt,antitoppt);
     	}
     }
     // weights for MC & embedded samples
-    w*=fakeRate;
     if(pass.at(NE)){
 		double eidunc(0), erecunc(0);
 		if(doElectronIdUncertainty){
@@ -1095,8 +1143,8 @@ void  ZtoEMu::doEvent(){
 				erecunc *= -1;
 			}
 		}
-		w*=(RSF->ElectronIdTrig2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx))+eidunc);
-		w*=(RSF->ElectronReconstruction2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx))+erecunc);
+		eidweight*=(RSF->ElectronIdTrig2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx))+eidunc);
+		eidweight*=(RSF->ElectronReconstruction2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx))+erecunc);
     }
     if(pass.at(NMu)){
 		// for systematics: add systematic uncertainty of 0.5%(1.5%) when pt>20(<20) for Id and 0.2% for isolation when pt>20 to statistical in quadrature.
@@ -1116,9 +1164,9 @@ void  ZtoEMu::doEvent(){
 				mutrkunc *= -1;
 			}
 		}
-		w*=(RSF->MuonIdTight2012(Ntp->Muon_p4(muidx))+muidunc);
-		w*=(RSF->MuonIsoTight2012(Ntp->Muon_p4(muidx))+muisounc);
-		w*=(RSF->TrackingEfficiency2012(Ntp->Muon_p4(muidx))+mutrkunc);
+		muidweight*=(RSF->MuonIdTight2012(Ntp->Muon_p4(muidx))+muidunc);
+		muidweight*=(RSF->MuonIsoTight2012(Ntp->Muon_p4(muidx))+muisounc);
+		muidweight*=(RSF->TrackingEfficiency2012(Ntp->Muon_p4(muidx))+mutrkunc);
     }
     if(pass.at(TriggerOk)
     		&& pass.at(NMu)
@@ -1131,9 +1179,16 @@ void  ZtoEMu::doEvent(){
     		else trigunc = RSF->HiggsWW_EMu_Trigger(Ntp->Muon_p4(muidx),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),"Mu8_Ele17")*sqrt(pow(0.005,2)+pow(0.002,2));
     		if(!upwardUncertainty) trigunc *= -1;
     	}
-    	if(leadingmu) w*=(RSF->HiggsWW_EMu_Trigger(Ntp->Muon_p4(muidx),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),"Mu17_Ele8")+trigunc);
-    	else w*=(RSF->HiggsWW_EMu_Trigger(Ntp->Muon_p4(muidx),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),"Mu8_Ele17")+trigunc);
+    	if(leadingmu) trigweight*=(RSF->HiggsWW_EMu_Trigger(Ntp->Muon_p4(muidx),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),"Mu17_Ele8")+trigunc);
+    	else trigweight*=(RSF->HiggsWW_EMu_Trigger(Ntp->Muon_p4(muidx),Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),"Mu8_Ele17")+trigunc);
     }
+    w*=fakeRate;
+    w*=puweight;
+    w*=embeddweight;
+    w*=ttptweight;
+    w*=eidweight;
+    w*=muidweight;
+    w*=trigweight;
     if(verbose)std::cout << "void  ZtoEMu::doEvent() k" << w << " " << wobs << std::endl;
   }
   else{w=1*fakeRate;wobs=1;}
@@ -1296,6 +1351,8 @@ void  ZtoEMu::doEvent(){
 	  ptbal.at(t).Fill((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).Pt(),w);
 	  ptbal_zoom.at(t).Fill((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).Pt(),w);
 	  ptsum.at(t).Fill(Ntp->Muon_p4(muidx).Pt()+Ntp->Electron_p4(eidx).Pt(),w);
+	  if(Ntp->Muon_p4(muidx).Pt()>=Ntp->Electron_p4(eidx).Pt()) mtlead.at(t).Fill(Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
+	  else mtlead.at(t).Fill(Ntp->transverseMass(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_p4(eidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
 
 	  //mtmu cross checks
 	  mtmu_phicorr.at(t).Fill(sqrt(2*Ntp->Muon_p4(muidx).Pt()*Ntp->MET_CorrT0pcT1Txy_et()*(1-cosphi2d(Ntp->Muon_p4(muidx).Px(),Ntp->Muon_p4(muidx).Py(),Ntp->MET_CorrT0pcT1Txy_ex(),Ntp->MET_CorrT0pcT1Txy_ey()))),w);
@@ -1475,6 +1532,80 @@ void  ZtoEMu::doEvent(){
 			  if(Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_Type1CorrUnClusteredUp_et(),Ntp->MET_Type1Corr_phi())<cut.at(MtMu)) met_uncertainties.at(t).AddBinContent(5,w);
 			  if(Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_Type1CorrUnClusteredDown_et(),Ntp->MET_Type1Corr_phi())<cut.at(MtMu)) met_uncertainties.at(t).AddBinContent(6,w);
 		  }
+	  }
+	  if(!Ntp->isData() && !isQCDEvent){
+		  mtmu_patcorr.at(t).Fill(Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_Type1Corr_et(),Ntp->MET_Type1Corr_phi()),w);
+		  mte_patcorr.at(t).Fill(Ntp->transverseMass(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_p4(eidx).Phi(),Ntp->MET_Type1Corr_et(),Ntp->MET_Type1Corr_phi()),w);
+	  }else{
+		  mtmu_patcorr.at(t).Fill(Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
+		  mte_patcorr.at(t).Fill(Ntp->transverseMass(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_p4(eidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi()),w);
+	  }
+
+	  double notrigweight = w;
+	  if(!Ntp->isData() && trigweight != 0) notrigweight /= trigweight;
+	  mupt_mll_notrig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),notrigweight);
+	  mupt_mll_trig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),w);
+	  ept_mll_notrig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),notrigweight);
+	  ept_mll_trig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),w);
+	  if(passAllUntil(ptBalance)){
+		  mupt_nm1_notrig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),notrigweight);
+		  mupt_nm1_trig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),w);
+		  ept_nm1_notrig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),notrigweight);
+		  ept_nm1_trig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),w);
+		  if(Ntp->GetMCID() == DataMCType::DY_tautau){
+			  TLorentzVector Z(0,0,0,0);
+			  for(unsigned i=0;i<Ntp->NMCParticles();i++){
+				  if(Z != TLorentzVector(0,0,0,0)) break;
+				  if(fabs(Ntp->MCParticle_pdgid(i))==23){
+					  Z = Ntp->MCParticle_p4(i);
+				  }
+			  }
+			  invmass_genmass.at(t).Fill((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).M(),Z.M(),w);
+			  invmass_nogencut.at(t).Fill((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).M(),w);
+			  if(Z.M()<120) invmass_gencut.at(t).Fill((Ntp->Muon_p4(muidx)+Ntp->Electron_p4(eidx)).M(),w);
+		  }
+	  }
+	  if(status){
+		  mupt_nm0_notrig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),notrigweight);
+		  mupt_nm0_trig.at(t).Fill(Ntp->Muon_p4(muidx).Pt(),w);
+		  ept_nm0_notrig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),notrigweight);
+		  ept_nm0_trig.at(t).Fill(Ntp->Electron_p4(eidx).Pt(),w);
+	  }
+	  if(passAllBut(MtMu)){
+		  double mte_value = Ntp->transverseMass(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_p4(eidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi());
+		  if(mte_value<40) mte_cut.at(t).AddBinContent(1,w);
+		  if(mte_value<45) mte_cut.at(t).AddBinContent(2,w);
+		  if(mte_value<50) mte_cut.at(t).AddBinContent(3,w);
+		  if(mte_value<55) mte_cut.at(t).AddBinContent(4,w);
+		  if(mte_value<60) mte_cut.at(t).AddBinContent(5,w);
+		  if(mte_value<65) mte_cut.at(t).AddBinContent(6,w);
+		  if(mte_value<70) mte_cut.at(t).AddBinContent(7,w);
+		  double mtmu_value = Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_CorrT0pcT1Txy_et(),Ntp->MET_CorrT0pcT1Txy_phi());
+		  if(mtmu_value<40) mtmu_cut.at(t).AddBinContent(1,w);
+		  if(mtmu_value<45) mtmu_cut.at(t).AddBinContent(2,w);
+		  if(mtmu_value<50) mtmu_cut.at(t).AddBinContent(3,w);
+		  if(mtmu_value<55) mtmu_cut.at(t).AddBinContent(4,w);
+		  if(mtmu_value<60) mtmu_cut.at(t).AddBinContent(5,w);
+		  if(mtmu_value<65) mtmu_cut.at(t).AddBinContent(6,w);
+		  if(mtmu_value<70) mtmu_cut.at(t).AddBinContent(7,w);
+		  double mte_value_patcorr = mte_value;
+		  if(!Ntp->isData() && !isQCDEvent) mte_value_patcorr = Ntp->transverseMass(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_p4(eidx).Phi(),Ntp->MET_Type1Corr_et(),Ntp->MET_Type1Corr_phi());
+		  if(mte_value_patcorr<40) mte_cut_patcorr.at(t).AddBinContent(1,w);
+		  if(mte_value_patcorr<45) mte_cut_patcorr.at(t).AddBinContent(2,w);
+		  if(mte_value_patcorr<50) mte_cut_patcorr.at(t).AddBinContent(3,w);
+		  if(mte_value_patcorr<55) mte_cut_patcorr.at(t).AddBinContent(4,w);
+		  if(mte_value_patcorr<60) mte_cut_patcorr.at(t).AddBinContent(5,w);
+		  if(mte_value_patcorr<65) mte_cut_patcorr.at(t).AddBinContent(6,w);
+		  if(mte_value_patcorr<70) mte_cut_patcorr.at(t).AddBinContent(7,w);
+		  double mtmu_value_patcorr = mtmu_value;
+		  if(!Ntp->isData() && !isQCDEvent) mtmu_value_patcorr = Ntp->transverseMass(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Phi(),Ntp->MET_Type1Corr_et(),Ntp->MET_Type1Corr_phi());
+		  if(mtmu_value_patcorr<40) mtmu_cut_patcorr.at(t).AddBinContent(1,w);
+		  if(mtmu_value_patcorr<45) mtmu_cut_patcorr.at(t).AddBinContent(2,w);
+		  if(mtmu_value_patcorr<50) mtmu_cut_patcorr.at(t).AddBinContent(3,w);
+		  if(mtmu_value_patcorr<55) mtmu_cut_patcorr.at(t).AddBinContent(4,w);
+		  if(mtmu_value_patcorr<60) mtmu_cut_patcorr.at(t).AddBinContent(5,w);
+		  if(mtmu_value_patcorr<65) mtmu_cut_patcorr.at(t).AddBinContent(6,w);
+		  if(mtmu_value_patcorr<70) mtmu_cut_patcorr.at(t).AddBinContent(7,w);
 	  }
 
 	  if(verbose)std::cout << "invariant mass with different cuts applied" << std::endl;

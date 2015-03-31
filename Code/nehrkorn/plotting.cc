@@ -15,6 +15,7 @@ bool signaltop = false;
 bool emb = false;
 bool generatorcomparison = false;
 bool blind = false;
+bool arc = true;
 TString prepend = "ztoemu_default_";
 TString signalName = "emu_DY";
 
@@ -28,7 +29,8 @@ void plotting(){
 	// enter filename here
 	TString filename;
 	if(emb) filename = "/user/nehrkorn/analysis_emb_scaled.root";
-	else if (generatorcomparison) filename = "/user/nehrkorn/analysis_gencomparison.root";
+	else if(generatorcomparison) filename = "/user/nehrkorn/analysis_gencomparison.root";
+	else if(arc) filename = "/user/nehrkorn/analysis_arc.root";
 	else filename = "/user/nehrkorn/analysis_standard.root";
 	//filename = "/user/nehrkorn/metUncStudy/meteleup.root";
 	//filename = "/user/nehrkorn/metUncStudy/meteledown.root";
@@ -280,6 +282,46 @@ void plotting(){
 				datahists.at(i)->SetBinContent(datahists.at(i)->FindFixBin(97.1),0);
 			}
 			drawPlot(datahists.at(i),getHistos(plots[i],names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",units[i]);
+		}
+	}
+	if(arc){
+		const int nplots = 10;
+		TString plots[nplots] = {"mupt_nm1_notrig","mupt_nm1_trig","ept_nm1_notrig","ept_nm1_trig","invmass_nogencut","invmass_gencut","met_patcorr","mtmu_patcorr","mte_patcorr","mtlead"};
+		TString units[nplots] = {"GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV"};
+		std::vector<TH1D*> datahists;
+		for(unsigned i=0;i<nplots;i++){
+			datahists.push_back(getHisto(plots[i]+"Data",1,1,infile));
+		}
+		for(unsigned i=0;i<nplots;i++){
+			drawPlot(datahists.at(i),getHistos(plots[i],names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",units[i]);
+		}
+		// mte cuts
+		TH1D* datamte = getHisto("mte_cutData",1,1,infile);
+		std::vector<TH1D*> mcmte = getHistos("mte_cut",names,mcscale,colors,infile,syst);
+		int signalpos = mcmte.size()-1;
+		double mte_result[7] = {0,0,0,0,0,0,0};
+		for(unsigned i = 0; i < mcmte.size()-1; i++){
+			for(unsigned j = 1; j <= mcmte.at(i)->GetNbinsX(); j++){
+				mte_result[j-1] += mcmte.at(i)->GetBinContent(j);
+			}
+		}
+		std::cout << "Events with mte cut: " << std::endl;
+		for(unsigned i = 0; i < 7; i++){
+			printf("Cut: %i , Data: %8.3f , Background: %8.3f , Signal: %8.3f \n",40+i*5,datamte->GetBinContent(i+1),mte_result[i],mcmte.at(signalpos)->GetBinContent(i+1));
+		}
+		// mtmu cuts
+		TH1D* datamtmu = getHisto("mtmu_cutData",1,1,infile);
+		std::vector<TH1D*> mcmtmu = getHistos("mtmu_cut",names,mcscale,colors,infile,syst);
+		int signalpos = mcmtmu.size()-1;
+		double mtmu_result[7] = {0,0,0,0,0,0,0};
+		for(unsigned i = 0; i < mcmtmu.size()-1; i++){
+			for(unsigned j = 1; j <= mcmtmu.at(i)->GetNbinsX(); j++){
+				mtmu_result[j-1] += mcmtmu.at(i)->GetBinContent(j);
+			}
+		}
+		std::cout << "Events with mte cut: " << std::endl;
+		for(unsigned i = 0; i < 7; i++){
+			printf("Cut: %i , Data: %8.3f , Background: %8.3f , Signal: %8.3f \n",40+i*5,datamtmu->GetBinContent(i+1),mtmu_result[i],mcmtmu.at(signalpos)->GetBinContent(i+1));
 		}
 	}
 	/*const int nplots = 9;
