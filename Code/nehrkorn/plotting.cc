@@ -15,7 +15,9 @@ bool signaltop = false;
 bool emb = false;
 bool generatorcomparison = false;
 bool blind = false;
-bool arc = true;
+bool arc = false;
+bool pol = false;
+bool onlyXsecLumiSyst = false;
 TString prepend = "ztoemu_default_";
 TString signalName = "emu_DY";
 
@@ -31,6 +33,8 @@ void plotting(){
 	if(emb) filename = "/user/nehrkorn/analysis_emb_scaled.root";
 	else if(generatorcomparison) filename = "/user/nehrkorn/analysis_gencomparison.root";
 	else if(arc) filename = "/user/nehrkorn/analysis_arc.root";
+	else if(pol) filename = "/user/nehrkorn/analysis_polarization.root";
+	//else if(pol) filename = "/user/nehrkorn/analysis_polarization_pfemb.root";
 	else filename = "/user/nehrkorn/analysis_standard.root";
 	//filename = "/user/nehrkorn/metUncStudy/meteleup.root";
 	//filename = "/user/nehrkorn/metUncStudy/meteledown.root";
@@ -43,6 +47,9 @@ void plotting(){
 	TFile* infile = new TFile(filename);
 	TFile* upfile = new TFile("/user/nehrkorn/jerjecup.root");
 	TFile* downfile = new TFile("/user/nehrkorn/jerjecdown.root");
+	TFile* rhembfile = new TFile("/user/nehrkorn/analysis_polarization.root");
+	TFile* pfembfile = new TFile("/user/nehrkorn/analysis_polarization_pfemb.root");
+	TFile* mumufile = new TFile("/user/nehrkorn/tvar_mumu.root");
 
 	// define crosssections and lumi
 	double lumi = 19712.;
@@ -156,7 +163,7 @@ void plotting(){
 	histnames.push_back("sig");
 
 	std::vector<TString> leg;
-	leg.push_back("QCD/W(Z)+jets");
+	leg.push_back("QCD, W/Z+jets");
 	leg.push_back("electroweak");
 	leg.push_back("top");
 	leg.push_back("Z#rightarrow#tau#tau");
@@ -257,6 +264,40 @@ void plotting(){
 	if(!dym50)syst.push_back(TMath::Sqrt(TMath::Power(0.026,2)+TMath::Power(0.055,2))); // dy_tautau
 	syst.push_back(QuadraticSum(nsyst+1,dyemu));
 	
+	if(onlyXsecLumiSyst){
+		syst.clear();
+		const int nsyst = 2;
+		double qcd[nsyst] = 	{0.026,0.387};
+		double zz4l[nsyst] = 	{0.026,0.150};
+		double zz2l2q[nsyst] = 	{0.026,0.150};
+		double zz2l2nu[nsyst] = {0.026,0.150};
+		double wz3lnu[nsyst] = 	{0.026,0.150};
+		double wz2l2q[nsyst] = 	{0.026,0.150};
+		double ww2l2nu[nsyst] = {0.026,0.150};
+		double ttbar[nsyst] = 	{0.026,0.047};
+		double tw[nsyst] = 		{0.026,0.090};
+		double tbarw[nsyst] = 	{0.026,0.090};
+		double dyll[nsyst] = 	{0.026,0.033};
+		double dytt[nsyst] = 	{0.026,0.033};
+		double dyemu[nsyst+1] = {0.026,0.033};
+		syst.push_back(QuadraticSum(nsyst,qcd));
+		syst.push_back(QuadraticSum(nsyst,zz4l));
+		syst.push_back(QuadraticSum(nsyst,zz2l2q));
+		syst.push_back(QuadraticSum(nsyst,zz2l2nu));
+		syst.push_back(QuadraticSum(nsyst,wz3lnu));
+		syst.push_back(QuadraticSum(nsyst,wz2l2q));
+		syst.push_back(QuadraticSum(nsyst,ww2l2nu));
+		syst.push_back(QuadraticSum(nsyst,ttbar));
+		syst.push_back(QuadraticSum(nsyst,tw));
+		syst.push_back(QuadraticSum(nsyst,tbarw));
+		syst.push_back(QuadraticSum(nsyst,dyll));
+		syst.push_back(QuadraticSum(nsyst,dytt));
+		if(!dym50)syst.push_back(TMath::Sqrt(TMath::Power(0.026,2)+TMath::Power(0.055,2))); // dy_ee
+		if(!dym50)syst.push_back(TMath::Sqrt(TMath::Power(0.026,2)+TMath::Power(0.055,2))); // dy_mumu
+		if(!dym50)syst.push_back(TMath::Sqrt(TMath::Power(0.026,2)+TMath::Power(0.055,2))); // dy_tautau
+		syst.push_back(QuadraticSum(nsyst+1,dyemu));
+	}
+
 	// create plots
 	if(testPlotting){
 		TString plot = "NPV";
@@ -324,6 +365,36 @@ void plotting(){
 			printf("Cut: %i , Data: %8.3f , Background: %8.3f , Signal: %8.3f \n",40+i*5,datamtmu->GetBinContent(i+1),mtmu_result[i],mcmtmu.at(signalpos)->GetBinContent(i+1));
 		}
 	}
+
+	if(pol){
+		/*TH1D* invmass_embedded = getHisto("invmass_vetos_mMC_tautau_emb",1,1,infile);
+		if(invmass_embedded->Integral()>0) invmass_embedded->Scale(1./invmass_embedded->Integral());
+		TH1D* invmass_mc_pol = getHisto("invmass_vetos_mMC_tautau_DY",1,1,infile);
+		invmass_mc_pol->SetFillColor(2345);
+		if(invmass_mc_pol->Integral()>0) invmass_mc_pol->Scale(1./invmass_mc_pol->Integral());
+		TH1D* invmass_ratio = getDataMC(invmass_embedded,invmass_mc_pol);
+		drawPlot(invmass_embedded,invmass_mc_pol,invmass_ratio,"RecHit Embedded","DY MC","RecHit embedded sample vs. DY MC","GeV");*/
+		const int npol = 6;
+		TString pol[npol] = {"invmass_recembweights","invmass_noembweights","invmass_allembweights","invmass_recembweights_ptbal","invmass_noembweights_ptbal","invmass_allembweights_ptbal"};
+		TString polnum[npol] = {"MC_tautau_emb","MC_tautau_emb","MC_tautau_emb","MC_tautau_emb","MC_tautau_emb","MC_tautau_emb"};
+		TString poldenom[npol] = {"MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY","MC_tautau_DY"};
+		TString poltitle[npol] = {"recembweights","noembweights","allembweights","recembweights","noembweights","allembweights"};
+		TString polunits[npol] = {"GeV","GeV","GeV","GeV","GeV","GeV"};
+		for(unsigned i=0;i<npol;i++){
+			DrawComparison(pol[i]+polnum[i],pol[i]+poldenom[i],1,1,0,0,infile,poltitle[i],polunits[i]);
+		}
+		/*for(unsigned i=0;i<npol;i++){
+			DrawComparison(pol[i]+polnum[i],pol[i]+poldenom[i],1,1,0,0,pfembfile,poltitle[i],polunits[i]);
+		}*/
+	}
+
+	DrawComparison("invmass_recembweights_ptbalMC_tautau_emb","invmass_recembweights_ptbalMC_tautau_emb",1,1,0,0,rhembfile,pfembfile,"recembweights","GeV");
+
+	/*prepend = "tvariable_mumu_default_";
+	TString widerange = "invmass_ptbalance_widerange";
+	TString unit = "GeV";
+	TH1D* datahist = getHisto(widerange+"Data",1,1,mumufile);
+	drawPlot(datahist,getHistos(widerange,names,mcscale,colors,mumufile,syst),histpositions,histnames,reducedColors,leg,"",unit);*/
 	/*const int nplots = 9;
 	TString plots[nplots] = {"ptbal_zoom_highmt","ptbal_tt_njets_highmt","ptbal_ww_njets_highmt","ptbal_ww_jetpt_highmt","ptbal_ww_njets_jetpt_highmt","onejet_highmt","onejet_njets_highmt","onejet_njets_jetpt_10_highmt","ptbal_zoom"};
 	TString units[nplots] = {"GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV","GeV"};
@@ -348,8 +419,8 @@ void plotting(){
 			ptmc += mcpt.at(j)->GetBinContent(i);
 		}
 		std::cout << ptmc << "(MC), " << sigpt->GetBinContent(i) << "(signal)" << std::endl;
-	}
-	TH1D* sigmet = getHisto("met_uncertaintiesMC_emu_DY",1,1,infile);
+	}*/
+	/*TH1D* sigmet = getHisto("met_uncertaintiesMC_emu_DY",1,1,infile);
 	std::vector<TH1D*> mcmet = getHistos("met_uncertainties",names,mcscale,colors,infile,syst);
 	std::cout << "====================" << std::endl;
 	for(unsigned i=1;i<=sigmet->GetNbinsX();i++){
@@ -357,6 +428,7 @@ void plotting(){
 		double metmc(0);
 		for(unsigned j=0;j<mcmet.size()-1;j++){
 			metmc += mcmet.at(j)->GetBinContent(i);
+			std::cout << mcmet.at(j)->GetBinContent(i) << " (" << names.at(j) << "), ";
 		}
 		std::cout << metmc << "(MC), " << sigmet->GetBinContent(i) << "(signal)" << std::endl;
 	}*/
@@ -529,6 +601,15 @@ void DrawComparison(TString a, TString b, TString c, double a_scale, double b_sc
 	TH1D* signalhist = getHisto(a,a_scale,0,file,a_syst);
 	TH1D* backgroundhist = getHisto(b,b_scale,2345,file,b_syst);
 	backgroundhist->Add(getHisto(c,c_scale,2345,file,c_syst));
+	signalhist->Scale(1./signalhist->Integral());
+	backgroundhist->Scale(1./backgroundhist->Integral());
+	TH1D* sb_ratio = getDataMC(signalhist,backgroundhist);
+	drawPlot(signalhist,backgroundhist,sb_ratio,"Custom MC","Official MC",title,unit);
+}
+
+void DrawComparison(TString a, TString b, double a_scale, double b_scale, double a_syst, double b_syst, TFile* a_file, TFile* b_file, TString title, TString unit){
+	TH1D* signalhist = getHisto(a,a_scale,0,a_file,a_syst);
+	TH1D* backgroundhist = getHisto(b,b_scale,2345,b_file,b_syst);
 	signalhist->Scale(1./signalhist->Integral());
 	backgroundhist->Scale(1./backgroundhist->Integral());
 	TH1D* sb_ratio = getDataMC(signalhist,backgroundhist);

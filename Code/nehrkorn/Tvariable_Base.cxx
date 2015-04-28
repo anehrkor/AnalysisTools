@@ -956,7 +956,6 @@ void  Tvariable_Base::doEvent(){
 
   if(verbose)std::cout<< "Find highest pt jet" << std::endl;
   int firstjet_idx=-1;
-  int secondjet_idx=-1;
   double initialpt=0.;
 
   // loop over jets from selected vertex & find the two jets with the highest pt
@@ -964,16 +963,6 @@ void  Tvariable_Base::doEvent(){
 	  if(Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()>initialpt){
 		  initialpt=Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt();
 		  firstjet_idx=jetsfromvtx.at(i);
-	  }
-  }
-  initialpt=0.;
-  for(unsigned i=0;i<jetsfromvtx.size();i++){
-	  if(jetsfromvtx.size()>1 && firstjet_idx!=-1
-			  && Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()>initialpt
-			  && Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()<Ntp->PFJet_p4(firstjet_idx).Pt()
-			  ){
-		  initialpt=Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt();
-		  secondjet_idx=jetsfromvtx.at(i);
 	  }
   }
 
@@ -987,7 +976,7 @@ void  Tvariable_Base::doEvent(){
 
   ///////////////////////////////////////////////
   //
-  // Mt Mu cut
+  // MET cut
   //
   if(verbose) std::cout << "Mt Mu cut" << std::endl;
   value.at(MET)=0.;

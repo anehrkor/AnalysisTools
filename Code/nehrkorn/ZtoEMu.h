@@ -202,7 +202,8 @@ class ZtoEMu : public Selection {
   double mu_ptlow,mu_pthigh,mu_eta,e_ptlow,e_pthigh,e_eta,mmin,mmax,jet_pt,jet_eta,singlejet,mtmu,ptbalance,zmin,zmax;
   double csvl,csvm,csvt;
   double normunc_dy,normunc_tt,normunc_tw,normunc_diboson,normunc_qcd;
-  bool isQCDEvent;
+  bool doTauSpinner;
+  bool isQCDEvent,isPFembedded;
   bool doPDFuncertainty;
   bool doTriggerUncertainty,doPileupUncertainty;
   bool doElectronIdUncertainty,doElectronScaleUncertainty,doElectronResUncertainty;

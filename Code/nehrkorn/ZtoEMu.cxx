@@ -14,6 +14,8 @@
 
 #include <TFile.h>
 #include <sstream>
+#include "SimpleFits/FitSoftware/interface/PDGInfo.h"
+#include "TauSpinerInterface.h"
 
 ZtoEMu::ZtoEMu(TString Name_, TString id_):
   Selection(Name_,id_)
@@ -48,6 +50,8 @@ ZtoEMu::ZtoEMu(TString Name_, TString id_):
 	ecorr = "";
 	jetcorr = "runJER";
 
+	doTauSpinner = false;
+	isPFembedded = false;
 	isQCDEvent = false;
 
 	// decide if and which systematics should be done
@@ -668,6 +672,8 @@ void  ZtoEMu::doEvent(){
   if(verbose)std::cout << "id: " << id << std::endl;
   if(!HConfig.GetHisto(Ntp->isData(),id,t)){ std::cout << "failed to find id" << std::endl; return;}
   
+  isQCDEvent = false;
+
   ///////////////////////////////////////////////
   //
   // Set corrections
@@ -975,24 +981,13 @@ void  ZtoEMu::doEvent(){
 
   if(verbose)std::cout<< "Find highest pt jet" << std::endl;
   int firstjet_idx=-1;
-  int secondjet_idx=-1;
   double initialpt=0.;
 
-  // loop over jets from selected vertex & find the two jets with the highest pt
+  // loop over jets from selected vertex & find the one with the highest pt
   for(unsigned i=0;i<jetsfromvtx.size();i++){
 	  if(Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()>initialpt){
 		  initialpt=Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt();
 		  firstjet_idx=jetsfromvtx.at(i);
-	  }
-  }
-  initialpt=0.;
-  for(unsigned i=0;i<jetsfromvtx.size();i++){
-	  if(jetsfromvtx.size()>1 && firstjet_idx!=-1
-			  && Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()>initialpt
-			  && Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt()<Ntp->PFJet_p4(firstjet_idx).Pt()
-			  ){
-		  initialpt=Ntp->PFJet_p4(jetsfromvtx.at(i)).Pt();
-		  secondjet_idx=jetsfromvtx.at(i);
 	  }
   }
 
@@ -1088,8 +1083,12 @@ void  ZtoEMu::doEvent(){
 	}
 	// weights just for embedded samples
     if(Ntp->GetMCID()==DataMCType::DY_emu_embedded){
-    	embeddweight*=Ntp->EmbeddedWeight();
-    	if(pass.at(NE)) embeddweight*=RSF->ElectronEmbedding2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx));
+    	if(!isPFembedded){
+    		embeddweight*=Ntp->Embedding_TauSpinnerWeight();
+			embeddweight*=Ntp->Embedding_SelEffWeight();
+			if(pass.at(NE)) embeddweight*=RSF->ElectronEmbedding2012(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx));
+    	}
+    	embeddweight*=Ntp->Embedding_MinVisPtFilter();
     }
     // weights just for ttbar samples
     if(Ntp->GetMCID()==DataMCType::ttbar){
@@ -1189,6 +1188,18 @@ void  ZtoEMu::doEvent(){
     w*=eidweight;
     w*=muidweight;
     w*=trigweight;
+
+    // Get TauSpinner Weight
+    unsigned Boson_idx,tau1_idx(0),tau2_idx(0);
+    double tauspinnerweight(1);
+    if(doTauSpinner && Ntp->GetMCID() == DataMCType::DY_tautau && Ntp->hasSignalTauDecay(PDGInfo::Z0,Boson_idx,tau1_idx,tau2_idx)){
+    	bool ImpTau = true;
+    	unsigned jakid1 = Ntp->MCTau_JAK(tau1_idx);
+    	unsigned jakid2 = Ntp->MCTau_JAK(tau2_idx);
+    	if(!(jakid1 == TauDecay::JAK_ELECTRON || jakid1 == TauDecay::JAK_MUON) || !(jakid2 == TauDecay::JAK_ELECTRON || jakid2 == TauDecay::JAK_MUON)) ImpTau = false;
+    	if(ImpTau) tauspinnerweight = Ntp->TauSpinerGet(TauSpinerInterface::Spin);
+    }
+    w*=tauspinnerweight;
     if(verbose)std::cout << "void  ZtoEMu::doEvent() k" << w << " " << wobs << std::endl;
   }
   else{w=1*fakeRate;wobs=1;}
@@ -1993,16 +2004,20 @@ void ZtoEMu::Finish(){
 		for(unsigned i=0;i<HConfig.GetNHisto();i++){
 			if(HConfig.GetID(i)==DataMCType::DY_tautau){
 				printf("DY_tautau after ptbalance cut: %.3f\n",Npassed.at(i).GetBinContent(ptBalance+2));
-				ndymc = Npassed.at(i).GetBinContent(ptBalance+2);
+				ndymc = Npassed.at(i).GetBinContent(oneJet+2);
 			}
 			if(HConfig.GetID(i)==DataMCType::DY_emu_embedded){
 				printf("DY_emu_embedded after ptbalance cut: %.3f\n",Npassed.at(i).GetBinContent(ptBalance+2));
-				ndyemb = Npassed.at(i).GetBinContent(ptBalance+2);
+				ndyemb = Npassed.at(i).GetBinContent(oneJet+2);
 			}
 			if(doPtUncertainty && HConfig.GetID(i)==DataMCType::ttbar) tt_ptweight_mean = tt_ptweight.at(i).GetMean();
 		}
 		if(ndymc>0 && ndyemb>0){
-			Selection::ScaleAllHistOfType(HConfig.GetType(DataMCType::DY_emu_embedded),ndymc/ndyemb*10393634./10152445.);
+			if(isPFembedded){
+				Selection::ScaleAllHistOfType(HConfig.GetType(DataMCType::DY_emu_embedded),ndymc/ndyemb*11026287./10152445.);
+			}else{
+				Selection::ScaleAllHistOfType(HConfig.GetType(DataMCType::DY_emu_embedded),ndymc/ndyemb*10393634./10152445.);
+			}
 			std::cout << "Scaled embedded histograms" << std::endl;
 		}else{
 			Selection::ScaleAllHistOfType(DataMCType::DY_emu_embedded,0);
@@ -2012,8 +2027,8 @@ void ZtoEMu::Finish(){
 	}
 	Selection::Finish();
 	double sumdata(0), sumbkg(0), sumsignal(0);
-	double stddata(87),stdbkg(80.629),stdsignal(74.177);
-	double stdqcd(13.877),stdww(17.123),stdwz2l2q(0.000),stdwz3l1nu(0.249),stdzz4l(0.026),stdzz2l2q(0.000),stdzz2l2nu(0.009),stdtt(1.095),stdtw(0.592),stdtbarw(0.000),stddyll(7.213),stddytt(39.958);
+	double stddata(87),stdbkg(84.281),stdsignal(74.542);
+	double stdqcd(14.061),stdww(17.075),stdwz2l2q(0.000),stdwz3l1nu(0.286),stdzz4l(0.027),stdzz2l2q(0.000),stdzz2l2nu(0.009),stdtt(1.294),stdtw(0.592),stdtbarw(0.000),stddyll(9.643),stddytt(41.294);
 	double std(0);
 	double bkgunc(0),individualunc(0),statunc(0);
 	for(unsigned i=0;i<HConfig.GetNHisto();i++){
