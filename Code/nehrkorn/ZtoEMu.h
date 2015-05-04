@@ -196,6 +196,9 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> mte_cut_patcorr;
   std::vector<TH1D> mtmu_cut_patcorr;
 
+  std::vector<TH1D> invmass_80_to_100;
+  std::vector<TH1D> invmass_76_to_104;
+
   std::vector<TH1D> pdf_w0;
   std::vector<TH1D> pdf_w1;
 

@@ -489,6 +489,9 @@ void  ZtoEMu::Configure(){
   mte_cut_patcorr=HConfig.GetTH1D(Name+"_mte_cut_patcorr","mte_cut_patcorr",7,-0.5,6.5,"Cuts on m_{T}^{e}");
   mtmu_cut_patcorr=HConfig.GetTH1D(Name+"_mtmu_cut_patcorr","mtmu_cut_patcorr",7,-0.5,6.5,"Cuts on m_{T}^{#mu}");
 
+  invmass_80_to_100=HConfig.GetTH1D(Name+"_invmass_80_to_100","invmass_80_to_100",7,79,100,"m_{e#mu} (GeV)");
+  invmass_76_to_104=HConfig.GetTH1D(Name+"_invmass_76_to_104","invmass_76_to_104",11,73,106,"m_{e#mu} (GeV)");
+
   if(doPDFuncertainty){
 	  pdf_w0=HConfig.GetTH1D(Name+"_pdf_w0","pdf_w0",nPDFmembers,0,nPDFmembers,"pdf member");
 	  pdf_w1=HConfig.GetTH1D(Name+"_pdf_w1","pdf_w1",nPDFmembers,0,nPDFmembers,"pdf member");
@@ -657,6 +660,9 @@ void  ZtoEMu::Store_ExtraDist(){
  Extradist1d.push_back(&mte_patcorr);
  Extradist1d.push_back(&mte_cut_patcorr);
  Extradist1d.push_back(&mtmu_cut_patcorr);
+
+ Extradist1d.push_back(&invmass_80_to_100);
+ Extradist1d.push_back(&invmass_76_to_104);
 
  if(doPDFuncertainty){
 	 Extradist1d.push_back(&pdf_w0);
@@ -924,11 +930,25 @@ void  ZtoEMu::doEvent(){
 		  ){
 	  if(fakemu && !fakee){
 		  fakeRate = fakeRateMu;
+		  if(pass.at(NE)){
+			  if(!doFakeRateUncertainty) fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate35));
+			  else{
+				  if(upwardUncertainty) fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate50));
+				  else fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate20));
+			  }
+		  }
 		  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
 		  isQCDEvent = true;
 		  pass.at(charge)=true;
 	  }else if(fakee && !fakemu){
 		  fakeRate = fakeRateE;
+		  if(pass.at(NMu)){
+			  if(!doFakeRateUncertainty) fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate15));
+			  else{
+				  if(upwardUncertainty) fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate30));
+				  else fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate5));
+			  }
+		  }
 		  if(!HConfig.GetHisto(!Ntp->isData(),DataMCType::QCD,t)){ std::cout << "failed to find id "<< DataMCType::QCD <<std::endl; return;}
 		  isQCDEvent = true;
 		  pass.at(charge)=true;
@@ -944,9 +964,23 @@ void  ZtoEMu::doEvent(){
 		  ){
 	  if(fakemu && !fakee){
 		  fakeRate = -fakeRateMu;
+		  if(pass.at(NE)){
+			  if(!doFakeRateUncertainty) fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate35));
+			  else{
+				  if(upwardUncertainty) fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate50));
+				  else fakeRate *= (1-Fakerate(Ntp->Electron_p4(eidx).Pt(),Ntp->Electron_supercluster_eta(eidx),ElectronFakeRate20));
+			  }
+		  }
 		  pass.at(charge)=true;
 	  }else if(fakee && !fakemu){
 		  fakeRate = -fakeRateE;
+		  if(pass.at(NMu)){
+			  if(!doFakeRateUncertainty) fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate15));
+			  else{
+				  if(upwardUncertainty) fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate30));
+				  else fakeRate *= (1-Fakerate(Ntp->Muon_p4(muidx).Pt(),Ntp->Muon_p4(muidx).Eta(),MuonFakeRate5));
+			  }
+		  }
 		  pass.at(charge)=true;
 	  }else if(fakemu && fakee){
 		  fakeRate = -fakeRateMu*fakeRateE;
@@ -1377,7 +1411,6 @@ void  ZtoEMu::doEvent(){
 	  else if(!fakemu && fakee) nfakes.at(t).AddBinContent(1,w);
 	  else if(fakemu && fakee) nfakes.at(t).AddBinContent(2,w);
 
-
 	  if(jetsfromvtx.size()>0 && firstjet_idx!=-1){
 		  onejet.at(t).Fill(Ntp->PFJet_p4(firstjet_idx).Pt(),w);
 		  onejet_eta.at(t).Fill(Ntp->PFJet_p4(firstjet_idx).Eta(),w);
@@ -1646,6 +1679,8 @@ void  ZtoEMu::doEvent(){
 					  ptsum_nm0.at(t).Fill(Ntp->Muon_p4(muidx).Pt()+Ntp->Electron_p4(eidx).Pt(),w);
 					  sipe_nm0.at(t).Fill(Ntp->vertexSignificance(Ntp->Electron_Poca(eidx),vertex),w);
 					  sipmu_nm0.at(t).Fill(Ntp->vertexSignificance(Ntp->Muon_Poca(muidx),vertex),w);
+					  invmass_80_to_100.at(t).Fill(m,w);
+					  invmass_76_to_104.at(t).Fill(m,w);
 					  if(pass.at(ZMassmax)
 							  && pass.at(ZMassmin)){
 						  invmass_zmass.at(t).Fill(m,w);

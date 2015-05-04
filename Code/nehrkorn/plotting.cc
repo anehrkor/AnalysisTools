@@ -53,7 +53,9 @@ void plotting(){
 
 	// define crosssections and lumi
 	double lumi = 19712.;
-	double xsignal = 0.057;
+	//double xsignal = 0.057; // corresponds to OPAL limit
+	double xsignal = 0.035; // corresponds to BR = 1*10^-6
+	//double xsignal = 0.07; // corresponds to BR = 2*10^-6
 	double xdytautaum20 = 1966.7;
 	double xdyeem20 = 1966.7;
 	double xdymumum20 = 1966.7;
@@ -163,11 +165,15 @@ void plotting(){
 	histnames.push_back("sig");
 
 	std::vector<TString> leg;
-	leg.push_back("QCD, W/Z+jets");
-	leg.push_back("electroweak");
-	leg.push_back("top");
+	//leg.push_back("QCD, W/Z+jets");
+	leg.push_back("Misidentified leptons");
+	//leg.push_back("electroweak");
+	leg.push_back("Diboson, Z#rightarrow ee/#mu#mu");
+	//leg.push_back("top");
+	leg.push_back("t#bar{t}, tW, #bar{t}W");
 	leg.push_back("Z#rightarrow#tau#tau");
-	leg.push_back("Signal, B(Z#rightarrow e#mu)=1.7#times10^{-6}");
+	leg.push_back("Signal, B(Z#rightarrow e#mu)=1#times10^{-6}");
+	//leg.push_back("Signal, B(Z#rightarrow e#mu)=1#times10^{-6}");
 	
 	std::vector<double> mcscale;
 	std::vector<int> colors;
@@ -225,16 +231,20 @@ void plotting(){
 	TColor* lightblue = new TColor(2345,0.5546875,0.7265625,0.89453125,"",1.);
 	
 	std::vector<int> reducedColors;
-	reducedColors.push_back(1234);
-	reducedColors.push_back(38);
-	reducedColors.push_back(2345);
-	reducedColors.push_back(18);
+	//reducedColors.push_back(1234);
+	//reducedColors.push_back(38);
+	//reducedColors.push_back(2345);
+	//reducedColors.push_back(18);
+	reducedColors.push_back(TColor::GetColor(250,202,255));
+	reducedColors.push_back(TColor::GetColor(222,90,106));
+	reducedColors.push_back(TColor::GetColor(155,152,204));
+	reducedColors.push_back(TColor::GetColor(248,206,104));
 	reducedColors.push_back(0);
 	
 	std::vector<double> syst;
 	// lumi + xsec + eid + muid + pileup + trigger
 	const int nsyst = 6;
-	double qcd[nsyst] = 	{0.026,0.387,0.000,0.000,0.000,0.000};
+	double qcd[nsyst] = 	{0.026,0.372,0.000,0.000,0.000,0.000};
 	double zz4l[nsyst] = 	{0.026,0.150,0.000,0.000,0.038,0.000};
 	double zz2l2q[nsyst] = 	{0.026,0.150,0.000,0.000,0.000,0.000};
 	double zz2l2nu[nsyst] = {0.026,0.150,0.000,0.000,0.333,0.000};
@@ -301,6 +311,7 @@ void plotting(){
 	// create plots
 	if(testPlotting){
 		TString plot = "NPV";
+		plot = "invmass_80_to_100";
 		TString unit = "";
 		TH1D* datahist = getHisto(plot+"Data",1,1,infile);
 		drawPlot(datahist,getHistos(plot,names,mcscale,colors,infile,syst),histpositions,histnames,reducedColors,leg,"",unit);
@@ -388,7 +399,7 @@ void plotting(){
 		}*/
 	}
 
-	DrawComparison("invmass_recembweights_ptbalMC_tautau_emb","invmass_recembweights_ptbalMC_tautau_emb",1,1,0,0,rhembfile,pfembfile,"recembweights","GeV");
+	//DrawComparison("invmass_recembweights_ptbalMC_tautau_emb","invmass_recembweights_ptbalMC_tautau_emb",1,1,0,0,rhembfile,pfembfile,"recembweights","GeV");
 
 	/*prepend = "tvariable_mumu_default_";
 	TString widerange = "invmass_ptbalance_widerange";
@@ -674,7 +685,7 @@ TH1D* getDataMC(TH1D* datahist, TH1D* MChist){
 	int nbins = datahist->GetNbinsX();
 	double xlow = datahist->GetXaxis()->GetXmin();
 	double xhigh = datahist->GetXaxis()->GetXmax();
-	TH1D* hist = new TH1D("hist",";;Data/MC",nbins,xlow,xhigh);
+	TH1D* hist = new TH1D("hist",";;Data/Bkg.",nbins,xlow,xhigh);
 	
 	for(unsigned int i=1;i<=nbins;i++){
 		double data = datahist->GetBinContent(i);
@@ -705,7 +716,7 @@ TH1D* getDataMC(TH1D* datahist, std::vector<TH1D*> MChists){
 	int nbins = datahist->GetNbinsX();
 	double xlow = datahist->GetXaxis()->GetXmin();
 	double xhigh = datahist->GetXaxis()->GetXmax();
-	TH1D* hist = new TH1D("hist",";;Data/MC",nbins,xlow,xhigh);
+	TH1D* hist = new TH1D("hist",";;Data/Bkg.",nbins,xlow,xhigh);
 	
 	for(unsigned int i=1;i<=nbins;i++){
 		double data = datahist->GetBinContent(i);
@@ -859,7 +870,7 @@ void drawPlot(TH1D* data, std::vector<TH1D*> allhistos, std::vector<std::vector<
 	stack->Draw("Histsame");
 	total->Draw("E2same");
 	if(!signaltop){
-		signal->SetLineColor(kRed);
+		signal->SetLineColor(kBlack);
 		signal->SetLineWidth(3);
 		signal->Scale(1);
 		signal->Draw("Histsame");
@@ -1026,7 +1037,8 @@ TLegend* createLegend(TH1D* data, std::vector<TH1D*> histos, std::vector<TString
 	legend->AddEntry(data,"Data","pe");
 	for(int i=histos.size()-1;i>=0;i--){
 		if(names.at(i).Contains("Signal")){
-			histos.at(i)->SetLineColor(kRed);
+			if(signaltop) histos.at(i)->SetLineColor(kRed);
+			else histos.at(i)->SetLineColor(kBlack);
 			legend->AddEntry(histos.at(i),names.at(i),"l");
 		}else{
 			legend->AddEntry(histos.at(i),names.at(i),"F");
